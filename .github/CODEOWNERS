@@ -4,6 +4,9 @@
 # Devcontainer configuration
 /.devcontainer/       @skriptfabrik/devcontainer-maintainers
 
+# Docker files
+Dockerfile            @skriptfabrik/docker-maintainers
+
 # NPM package files
 package.json          @skriptfabrik/npm-maintainers
 package-lock.yaml     @skriptfabrik/npm-maintainers

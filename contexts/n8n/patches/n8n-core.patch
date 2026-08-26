@@ -1,0 +1,11 @@
+--- a/dist/execution-engine/node-execution-context/utils/request-helpers/authentication.js
++++ b/dist/execution-engine/node-execution-context/utils/request-helpers/authentication.js
+@@ -44,7 +44,7 @@ async function httpRequestWithAuthentication(credentialsType, requestOptions, wo
+         return await (0, backend_network_1.httpRequest)(requestOptions, additionalData.ssrfBridge);
+     }
+     catch (error) {
+-        if (error.response?.status === 401 &&
++        if ((error.response?.status === 401 || error.response?.status === 403) &&
+             additionalData.credentialsHelper.preAuthentication !== undefined) {
+             try {
+                 if (credentialsDecrypted !== undefined) {

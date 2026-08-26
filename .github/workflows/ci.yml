@@ -51,6 +51,7 @@ jobs:
       contents: read
     outputs:
       prettier-files: ${{ steps.detect.outputs.changed-prettier-files }}
+      docker-contexts: ${{ steps.detect.outputs.changed-docker-contexts }}
 
     steps:
       - name: Checkout code
@@ -95,7 +96,17 @@ jobs:
             echo "$changed_prettier_files"
             echo "::endgroup::"
           fi
+          changed_docker_contexts=$(echo "$changed_files" | grep -Eo '^contexts/[^/]+' | sed 's|^contexts/||' | sort -u || true)
+          if [ -z "$changed_docker_contexts" ]; then
+            echo "::group::No changes in Docker contexts detected"
+            echo "::endgroup::"
+          else
+            echo "::group::Changed Docker contexts:"
+            echo "$changed_docker_contexts"
+            echo "::endgroup::"
+          fi
           echo "changed-prettier-files=$(echo "$changed_prettier_files" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
+          echo "changed-docker-contexts=$(echo "$changed_docker_contexts" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
 
   prettier:
     name: Lint Prettier Files
@@ -123,3 +134,33 @@ jobs:
 
       - name: Lint files with Prettier
         run: pnpm prettier --check .
+
+  n8n:
+    name: Build n8n Docker Image
+    needs: detect-changes
+    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'n8n') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep 'FROM n8nio/n8n' contexts/n8n/Dockerfile | cut -d':' -f2-)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/n8n
+          name: n8n
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha

@@ -22,3 +22,9 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'monday'
+
+  - package-ecosystem: 'docker'
+    directories:
+      - '/contexts/*/'
+    schedule:
+      interval: 'daily'
