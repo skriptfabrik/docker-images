@@ -9,6 +9,7 @@
 This is a mono repository with many different customized Docker images.
 Please take a closer look at the detailed instructions for the individual image:
 
+- [Arcane](contexts/arcane/README.md)
 - [n8n](contexts/n8n/README.md)
 - [Nagios](contexts/nagios/README.md)
 
@@ -20,6 +21,7 @@ Please take a closer look at the detailed instructions for the individual image:
 ├── .github/         GitHub Actions workflows, CODEOWNERS, Dependabot config
 ├── .mise/           mise hooks (e.g. postinstall)
 ├── contexts/        One directory per Docker image, each a self-contained build context
+│   ├── arcane/
 │   ├── n8n/
 │   └── nagios/
 ├── mise.toml        Tool versions and tasks (managed via mise)
