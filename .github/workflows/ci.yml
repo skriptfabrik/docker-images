@@ -135,6 +135,68 @@ jobs:
       - name: Lint files with Prettier
         run: pnpm prettier --check .
 
+  arcane-agent:
+    name: Build Arcane agent Docker Image
+    needs: detect-changes
+    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'arcane') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep 'FROM ghcr.io/getarcaneapp/agent' contexts/arcane/Dockerfile.agent | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/arcane
+          file: Dockerfile.agent
+          name: arcane-agent
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha
+
+  arcane-manager:
+    name: Build Arcane manager Docker Image
+    needs: detect-changes
+    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'arcane') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep 'FROM ghcr.io/getarcaneapp/manager' contexts/arcane/Dockerfile.manager | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/arcane
+          file: Dockerfile.manager
+          name: arcane-manager
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha
+
   n8n:
     name: Build n8n Docker Image
     needs: detect-changes
