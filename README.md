@@ -10,6 +10,7 @@ This is a mono repository with many different customized Docker images.
 Please take a closer look at the detailed instructions for the individual image:
 
 - [n8n](contexts/n8n/README.md)
+- [Nagios](contexts/nagios/README.md)
 
 ## Repository structure
 
@@ -20,6 +21,7 @@ Please take a closer look at the detailed instructions for the individual image:
 ├── .mise/           mise hooks (e.g. postinstall)
 ├── contexts/        One directory per Docker image, each a self-contained build context
 │   ├── n8n/
+│   └── nagios/
 ├── mise.toml        Tool versions and tasks (managed via mise)
 └── package.json     Node.js tooling for repo-wide linting (commitlint, Prettier)
 ```

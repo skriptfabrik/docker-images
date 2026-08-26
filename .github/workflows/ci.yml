@@ -164,3 +164,33 @@ jobs:
             type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
+
+  nagios:
+    name: Build Nagios Docker Image
+    needs: detect-changes
+    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'nagios') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep 'FROM jasonrivers/nagios' contexts/nagios/Dockerfile | cut -d':' -f2-)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/nagios
+          name: nagios
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha
