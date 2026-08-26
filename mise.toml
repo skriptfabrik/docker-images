@@ -1,0 +1,20 @@
+[settings]
+idiomatic_version_file_enable_tools = ["node"]
+
+[env]
+_.file = [".env"]
+_.path = ["{{config_root}}/node_modules/.bin"]
+COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
+
+[hooks]
+postinstall = ". {{config_root}}/.mise/hooks/postinstall.sh"
+
+[tasks.install]
+description = "Install dependencies"
+depends = ["pnpm-install"]
+
+[tasks.pnpm-install]
+description = "Install Node.js packages"
+run = "pnpm install"
+sources = ["mise.toml", "package.json", "pnpm-lock.yaml"]
+outputs = ["node_modules/.pnpm/lock.yaml"]

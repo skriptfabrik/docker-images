@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+
+jobs:
+  commitlint:
+    name: Lint Commit Messages
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint commit messages
+        run: |
+          pnpm commitlint \
+            --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} \
+            --to ${{ github.event.pull_request.head.sha }}
+          echo "Commit messages linting passed"
+
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      prettier-files: ${{ steps.detect.outputs.changed-prettier-files }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch --quiet origin ${{ github.event.pull_request.base.ref }}
+            base_sha=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }})
+            head_sha=${{ github.event.pull_request.head.sha }}
+          else
+            if  [ "${{ github.event.forced }}" = "true" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              # New branch, or a force push where "before" may no longer be reachable
+              # (or may belong to unrelated, rewritten history) — diff against the
+              # empty tree so all files are treated as changed.
+              base_sha=$(git hash-object -t tree /dev/null)
+            else
+              # Normal push, diff against the previous commit.
+              base_sha=${{ github.event.before }}
+            fi
+            head_sha=${{ github.sha }}
+          fi
+          changed_files=$(git diff --name-only --diff-filter=AM $base_sha $head_sha)
+          if [ -z "$changed_files" ]; then
+            echo "::group::No changes detected"
+            echo "::endgroup::"
+          else
+            echo "::group::Changed files:"
+            echo "$changed_files"
+            echo "::endgroup::"
+          fi
+          changed_prettier_files=$(echo "$changed_files" | grep -E '\.(c?js|mjs|json|md|ya?ml)$' || true)
+          if [ -z "$changed_prettier_files" ]; then
+            echo "::group::No changes in files to check with Prettier detected"
+            echo "::endgroup::"
+          else
+            echo "::group::Changed files to check with Prettier:"
+            echo "$changed_prettier_files"
+            echo "::endgroup::"
+          fi
+          echo "changed-prettier-files=$(echo "$changed_prettier_files" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
+
+  prettier:
+    name: Lint Prettier Files
+    needs: detect-changes
+    if: ${{ github.event_name == 'pull_request' && needs.detect-changes.outputs.prettier-files != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint files with Prettier
+        run: pnpm prettier --check .
