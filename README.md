@@ -12,6 +12,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Arcane](contexts/arcane/README.md)
 - [n8n](contexts/n8n/README.md)
 - [Nagios](contexts/nagios/README.md)
+- [Open WebUI](contexts/open-webui/README.md)
 
 ## Repository structure
 
@@ -23,7 +24,8 @@ Please take a closer look at the detailed instructions for the individual image:
 ├── contexts/        One directory per Docker image, each a self-contained build context
 │   ├── arcane/
 │   ├── n8n/
-│   └── nagios/
+│   ├── nagios/
+│   └── open-webui/
 ├── mise.toml        Tool versions and tasks (managed via mise)
 └── package.json     Node.js tooling for repo-wide linting (commitlint, Prettier)
 ```
