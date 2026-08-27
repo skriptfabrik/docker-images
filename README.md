@@ -14,6 +14,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [n8n](contexts/n8n/README.md)
 - [Nagios](contexts/nagios/README.md)
 - [Open WebUI](contexts/open-webui/README.md)
+- [Outline](contexts/outline/README.md)
 - [Plane](contexts/plane/README.md)
 
 ## Repository structure
@@ -29,6 +30,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── n8n/
 │   ├── nagios/
 │   ├── open-webui/
+│   ├── outline/
 │   └── plane/
 ├── mise.toml        Tool versions and tasks (managed via mise)
 └── package.json     Node.js tooling for repo-wide linting (commitlint, Prettier)

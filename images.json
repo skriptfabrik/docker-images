@@ -37,6 +37,12 @@
       "base": "ghcr.io/open-webui/open-webui"
     },
     {
+      "name": "outline",
+      "context": "outline",
+      "file": "Dockerfile",
+      "base": "outlinewiki/outline"
+    },
+    {
       "name": "plane-backend",
       "context": "plane",
       "file": "Dockerfile.backend",
