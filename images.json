@@ -35,6 +35,12 @@
       "context": "open-webui",
       "file": "Dockerfile",
       "base": "ghcr.io/open-webui/open-webui"
+    },
+    {
+      "name": "plane-backend",
+      "context": "plane",
+      "file": "Dockerfile.backend",
+      "base": "makeplane/plane-backend"
     }
   ]
 }
