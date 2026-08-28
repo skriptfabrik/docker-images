@@ -65,6 +65,12 @@
       "context": "searxng",
       "file": "Dockerfile",
       "base": "searxng/searxng"
+    },
+    {
+      "name": "semaphore",
+      "context": "semaphore",
+      "file": "Dockerfile",
+      "base": "semaphoreui/semaphore"
     }
   ]
 }

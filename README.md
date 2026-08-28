@@ -18,6 +18,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Outline](contexts/outline/README.md)
 - [Plane](contexts/plane/README.md)
 - [SearXNG](contexts/searxng/README.md)
+- [Semaphore](contexts/semaphore/README.md)
 
 ## Repository structure
 
@@ -35,7 +36,8 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── open-webui/
 │   ├── outline/
 │   ├── plane/
-│   └── searxng/
+│   ├── searxng/
+│   ├── semaphore/
 ├── mise.toml        Tool versions and tasks (managed via mise)
 └── package.json     Node.js tooling for repo-wide linting (commitlint, Prettier)
 ```
