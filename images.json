@@ -41,6 +41,12 @@
       "context": "plane",
       "file": "Dockerfile.backend",
       "base": "makeplane/plane-backend"
+    },
+    {
+      "name": "plane-live",
+      "context": "plane",
+      "file": "Dockerfile.live",
+      "base": "makeplane/plane-live"
     }
   ]
 }
