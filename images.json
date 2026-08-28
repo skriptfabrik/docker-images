@@ -59,6 +59,12 @@
       "context": "plane",
       "file": "Dockerfile.live",
       "base": "makeplane/plane-live"
+    },
+    {
+      "name": "searxng",
+      "context": "searxng",
+      "file": "Dockerfile",
+      "base": "searxng/searxng"
     }
   ]
 }
