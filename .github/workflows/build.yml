@@ -1,0 +1,100 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  diff:
+    name: Diff Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      build-matrix-json: ${{ steps.diff.outputs.build-matrix-json }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Diff against previous commit
+        id: diff
+        run: |
+          if  [ "${{ github.event.forced }}" = "true" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            # New branch, or a force push where "before" may no longer be reachable
+            # (or may belong to unrelated, rewritten history) — diff against the
+            # empty tree so all files are treated as changed.
+            base_sha=$(git hash-object -t tree /dev/null)
+          else
+            # Normal push, diff against the previous commit.
+            base_sha=${{ github.event.before }}
+          fi
+          # We use the current commit SHA here, not the PR head SHA, because this workflow is triggered by a push event, not a pull_request event.
+          changed_files=$(git diff --name-only --diff-filter=AM $base_sha ${{ github.sha }})
+          if [ -z "$changed_files" ]; then
+            echo "::group::No changes detected"
+            echo "::endgroup::"
+          else
+            echo "::group::Changed files:"
+            echo "$changed_files"
+            echo "::endgroup::"
+          fi
+          # We only want to build images for contexts that have changed.
+          docker_contexts=$(echo "$changed_files" | grep -Eo '^contexts/[^/]+' | sed 's|^contexts/||' | sort -u || true)
+          if [ -z "$docker_contexts" ]; then
+            build_matrix_json='[]'
+            echo "::group::No changes in Docker contexts detected"
+            echo "::endgroup::"
+            echo "::group::No build matrix generated"
+            echo "::endgroup::"
+          else
+            build_matrix_json=$(jq -c --argjson images "$(jq '.images' images.json)" --arg docker_contexts "$docker_contexts" -n '
+              ($docker_contexts | split("\n") | map(select(length > 0))) as $changed
+              | $images | map(select(.context as $c | $changed | index($c) != null))
+            ')
+            echo "::group::Changed Docker contexts:"
+            echo "$docker_contexts"
+            echo "::endgroup::"
+            echo "::group::Build matrix"
+            echo "$build_matrix_json" | jq .
+            echo "::endgroup::"
+          fi
+          # We output the results to be used in the next jobs.
+          echo "build-matrix-json=$build_matrix_json" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build Docker Image (${{ matrix.name }})
+    needs: diff
+    if: ${{ needs.diff.outputs.build-matrix-json != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.diff.outputs.build-matrix-json) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep -m 1 'FROM ${{ matrix.base }}' 'contexts/${{ matrix.context }}/${{ matrix.file }}' | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/${{ matrix.context }}
+          file: ${{ matrix.file }}
+          name: ${{ matrix.name }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha

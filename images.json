@@ -1,0 +1,34 @@
+{
+  "images": [
+    {
+      "name": "arcane-agent",
+      "context": "arcane",
+      "file": "Dockerfile.agent",
+      "base": "ghcr.io/getarcaneapp/agent"
+    },
+    {
+      "name": "arcane-manager",
+      "context": "arcane",
+      "file": "Dockerfile.manager",
+      "base": "ghcr.io/getarcaneapp/manager"
+    },
+    {
+      "name": "n8n",
+      "context": "n8n",
+      "file": "Dockerfile",
+      "base": "n8nio/n8n"
+    },
+    {
+      "name": "nagios",
+      "context": "nagios",
+      "file": "Dockerfile",
+      "base": "jasonrivers/nagios"
+    },
+    {
+      "name": "open-webui",
+      "context": "open-webui",
+      "file": "Dockerfile",
+      "base": "ghcr.io/open-webui/open-webui"
+    }
+  ]
+}

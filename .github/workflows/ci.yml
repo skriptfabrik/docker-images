@@ -7,14 +7,14 @@ on:
       - edited
       - reopened
       - synchronize
-  push:
-    branches:
-      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   commitlint:
     name: Lint Commit Messages
-    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,14 +44,15 @@ jobs:
             --to ${{ github.event.pull_request.head.sha }}
           echo "Commit messages linting passed"
 
-  detect-changes:
-    name: Detect Changes
+  diff:
+    name: Diff Changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
     outputs:
-      prettier-files: ${{ steps.detect.outputs.changed-prettier-files }}
-      docker-contexts: ${{ steps.detect.outputs.changed-docker-contexts }}
+      build-matrix-json: ${{ steps.diff.outputs.build-matrix-json }}
+      docker-files: ${{ steps.diff.outputs.docker-files }}
+      prettier-files: ${{ steps.diff.outputs.prettier-files }}
 
     steps:
       - name: Checkout code
@@ -59,26 +60,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect changes
-        id: detect
+      - name: Diff against base branch
+        id: diff
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch --quiet origin ${{ github.event.pull_request.base.ref }}
-            base_sha=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }})
-            head_sha=${{ github.event.pull_request.head.sha }}
-          else
-            if  [ "${{ github.event.forced }}" = "true" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-              # New branch, or a force push where "before" may no longer be reachable
-              # (or may belong to unrelated, rewritten history) — diff against the
-              # empty tree so all files are treated as changed.
-              base_sha=$(git hash-object -t tree /dev/null)
-            else
-              # Normal push, diff against the previous commit.
-              base_sha=${{ github.event.before }}
-            fi
-            head_sha=${{ github.sha }}
-          fi
-          changed_files=$(git diff --name-only --diff-filter=AM $base_sha $head_sha)
+          git fetch --quiet origin ${{ github.event.pull_request.base.ref }}
+          base_sha=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }})
+          # We use the base SHA here, not the PR head SHA, because this workflow is triggered by a pull_request event, not a push event.
+          changed_files=$(git diff --name-only --diff-filter=AM $base_sha ${{ github.event.pull_request.head.sha }})
           if [ -z "$changed_files" ]; then
             echo "::group::No changes detected"
             echo "::endgroup::"
@@ -87,31 +75,102 @@ jobs:
             echo "$changed_files"
             echo "::endgroup::"
           fi
-          changed_prettier_files=$(echo "$changed_files" | grep -E '\.(c?js|mjs|json|md|ya?ml)$' || true)
-          if [ -z "$changed_prettier_files" ]; then
+          # We detect changes in files that should be checked with Prettier (JavaScript, TypeScript, JSON, Markdown, YAML).
+          prettier_files=$(echo "$changed_files" | grep -E '\.(c?js|mjs|json|md|ya?ml)$' || true)
+          if [ -z "$prettier_files" ]; then
             echo "::group::No changes in files to check with Prettier detected"
             echo "::endgroup::"
           else
             echo "::group::Changed files to check with Prettier:"
-            echo "$changed_prettier_files"
+            echo "$prettier_files"
             echo "::endgroup::"
           fi
-          changed_docker_contexts=$(echo "$changed_files" | grep -Eo '^contexts/[^/]+' | sed 's|^contexts/||' | sort -u || true)
-          if [ -z "$changed_docker_contexts" ]; then
-            echo "::group::No changes in Docker contexts detected"
+          # We detect changes in Dockerfiles, which should be checked with Hadolint.
+          docker_files=$(echo "$changed_files" | grep -E 'Dockerfile(\..+)?$' || true)
+          if [ -z "$docker_files" ]; then
+            echo "::group::No changes in Docker files detected"
             echo "::endgroup::"
           else
-            echo "::group::Changed Docker contexts:"
-            echo "$changed_docker_contexts"
+            echo "::group::Changed Docker files:"
+            echo "$docker_files"
             echo "::endgroup::"
           fi
-          echo "changed-prettier-files=$(echo "$changed_prettier_files" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
-          echo "changed-docker-contexts=$(echo "$changed_docker_contexts" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
+          # We only want to build images for contexts that have changed.
+          docker_contexts=$(echo "$changed_files" | grep -Eo '^contexts/[^/]+' | sed 's|^contexts/||' | sort -u || true)
+          if [ -z "$docker_contexts" ]; then
+            build_matrix_json='[]'
+            echo "::group::No changes in Docker contexts detected"
+            echo "::endgroup::"
+            echo "::group::No build matrix generated"
+            echo "::endgroup::"
+          else
+            build_matrix_json=$(jq -c --argjson images "$(jq '.images' images.json)" --arg docker_contexts "$docker_contexts" -n '
+              ($docker_contexts | split("\n") | map(select(length > 0))) as $changed
+              | $images | map(select(.context as $c | $changed | index($c) != null))
+            ')
+            echo "::group::Changed Docker contexts:"
+            echo "$docker_contexts"
+            echo "::endgroup::"
+            echo "::group::Build matrix"
+            echo "$build_matrix_json" | jq .
+            echo "::endgroup::"
+          fi
+          # We output the results to be used in the next jobs.
+          echo "build-matrix-json=$build_matrix_json" >> $GITHUB_OUTPUT
+          echo "docker-files=$(echo "$docker_files" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
+          echo "prettier-files=$(echo "$prettier_files" | xargs | tr -d '\n')" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build Docker Image (${{ matrix.name }})
+    needs: diff
+    if: ${{ needs.diff.outputs.build-matrix-json != '[]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.diff.outputs.build-matrix-json) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep -m 1 'FROM ${{ matrix.base }}' 'contexts/${{ matrix.context }}/${{ matrix.file }}' | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: skriptfabrik/github-actions/build-docker-image@main
+        with:
+          context: contexts/${{ matrix.context }}
+          file: ${{ matrix.file }}
+          name: ${{ matrix.name }}
+          push: false
+
+  hadolint:
+    name: Lint Dockerfiles
+    needs: diff
+    if: ${{ needs.diff.outputs.docker-files != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Hadolint
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+
+      - name: Lint Dockerfiles with Hadolint
+        run: hadolint $(echo "${{ needs.diff.outputs.docker-files }}" | xargs)
 
   prettier:
     name: Lint Prettier Files
-    needs: detect-changes
-    if: ${{ github.event_name == 'pull_request' && needs.detect-changes.outputs.prettier-files != '' }}
+    needs: diff
+    if: ${{ needs.diff.outputs.prettier-files != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -133,156 +192,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint files with Prettier
-        run: pnpm prettier --check .
-
-  arcane-agent:
-    name: Build Arcane agent Docker Image
-    needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'arcane') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Extract version
-        id: extract_version
-        run: echo "version=$(grep 'FROM ghcr.io/getarcaneapp/agent' contexts/arcane/Dockerfile.agent | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        uses: skriptfabrik/github-actions/build-docker-image@main
-        with:
-          context: contexts/arcane
-          file: Dockerfile.agent
-          name: arcane-agent
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-
-  arcane-manager:
-    name: Build Arcane manager Docker Image
-    needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'arcane') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Extract version
-        id: extract_version
-        run: echo "version=$(grep 'FROM ghcr.io/getarcaneapp/manager' contexts/arcane/Dockerfile.manager | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        uses: skriptfabrik/github-actions/build-docker-image@main
-        with:
-          context: contexts/arcane
-          file: Dockerfile.manager
-          name: arcane-manager
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-
-  n8n:
-    name: Build n8n Docker Image
-    needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'n8n') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Extract version
-        id: extract_version
-        run: echo "version=$(grep 'FROM n8nio/n8n' contexts/n8n/Dockerfile | cut -d':' -f2-)" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        uses: skriptfabrik/github-actions/build-docker-image@main
-        with:
-          context: contexts/n8n
-          name: n8n
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-
-  nagios:
-    name: Build Nagios Docker Image
-    needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'nagios') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Extract version
-        id: extract_version
-        run: echo "version=$(grep 'FROM jasonrivers/nagios' contexts/nagios/Dockerfile | cut -d':' -f2-)" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        uses: skriptfabrik/github-actions/build-docker-image@main
-        with:
-          context: contexts/nagios
-          name: nagios
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-
-  open-webui:
-    name: Build Open WebUI Docker Image
-    needs: detect-changes
-    if: ${{ contains(needs.detect-changes.outputs.docker-contexts, 'open-webui') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Extract version
-        id: extract_version
-        run: echo "version=$(grep 'FROM ghcr.io/open-webui/open-webui' contexts/open-webui/Dockerfile | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        uses: skriptfabrik/github-actions/build-docker-image@main
-        with:
-          context: contexts/open-webui
-          name: open-webui
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            type=semver,pattern={{version}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.extract_version.outputs.version }}
-            type=semver,pattern={{major}},value=${{ steps.extract_version.outputs.version }}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
+        run: pnpm prettier --check $(echo "${{ needs.diff.outputs.prettier-files }}" | xargs)
