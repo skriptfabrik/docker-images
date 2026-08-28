@@ -6,6 +6,6 @@ COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/fileenv"]
+ENTRYPOINT ["/usr/local/bin/fileenv", "/usr/local/bin/docker-entrypoint.sh"]
 
-CMD ["/usr/local/bin/docker-entrypoint.sh", "./standalone-entrypoint.sh"]
+CMD ["./standalone-entrypoint.sh"]
