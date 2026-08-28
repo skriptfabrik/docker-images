@@ -1,0 +1,11 @@
+FROM ghcr.io/skriptfabrik/fileenv:1.1.0 AS fileenv
+
+FROM makeplane/plane-live:v1.4.2
+
+COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/fileenv", "/usr/local/bin/docker-entrypoint.sh"]
+
+CMD ["node", "apps/live"]
