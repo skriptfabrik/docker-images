@@ -161,11 +161,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Hadolint
-        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
-
       - name: Lint Dockerfiles with Hadolint
-        run: hadolint $(echo "${{ needs.diff.outputs.docker-files }}" | xargs)
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+        with:
+          dockerfile: ${{ needs.diff.outputs.docker-files }}
 
   prettier:
     name: Lint Prettier Files
