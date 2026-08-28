@@ -2,6 +2,11 @@
 
 lockfile_version = 1
 
+[[tools.hadolint]]
+version = "2.15.1"
+backend = "aqua:hadolint/hadolint"
+specifiers = ["latest"]
+
 [[tools.node]]
 version = "24.14.0"
 backend = "core:node"
