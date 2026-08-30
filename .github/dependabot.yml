@@ -30,5 +30,8 @@ updates:
       arcane:
         patterns:
           - 'getarcaneapp/*'
+      plane:
+        patterns:
+          - 'makeplane/*'
     schedule:
       interval: 'daily'
