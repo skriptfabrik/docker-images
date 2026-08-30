@@ -26,5 +26,9 @@ updates:
   - package-ecosystem: 'docker'
     directories:
       - '/contexts/*/'
+    groups:
+      arcane:
+        patterns:
+          - 'getarcaneapp/*'
     schedule:
       interval: 'daily'
