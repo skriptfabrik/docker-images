@@ -21,7 +21,8 @@ COPY --from=builder /pkgroot/ /
 # Copy patch files
 COPY ./patches /home/node/patches/
 
-USER root
+# Set to root user to apply patches
+USER 0
 
 # Apply patches
 RUN set -e \
@@ -30,4 +31,5 @@ RUN set -e \
   ; done \
   ; rm -rf /home/node/patches
 
-USER node
+# Set back to node user
+USER 1000
