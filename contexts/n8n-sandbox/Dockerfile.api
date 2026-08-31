@@ -4,4 +4,6 @@ FROM n8nio/n8n-sandbox-service-api:1.1.1
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
-ENTRYPOINT ["/usr/local/bin/fileenv", "/sbin/tini", "--", "/usr/local/bin/sandbox-api"]
+ENTRYPOINT ["/usr/local/bin/fileenv", "/sbin/tini", "--"]
+
+CMD ["/usr/local/bin/sandbox-api"]
