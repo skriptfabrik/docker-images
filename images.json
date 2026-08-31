@@ -49,6 +49,18 @@
       "base": "ghcr.io/czlonkowski/n8n-mcp"
     },
     {
+      "name": "n8n-sandbox-api",
+      "context": "n8n-sandbox",
+      "file": "Dockerfile.api",
+      "base": "n8nio/n8n-sandbox-service-api"
+    },
+    {
+      "name": "n8n-sandbox-runner-dind",
+      "context": "n8n-sandbox",
+      "file": "Dockerfile.runner-dind",
+      "base": "n8nio/n8n-sandbox-service-runner-dind"
+    },
+    {
       "name": "nagios",
       "context": "nagios",
       "file": "Dockerfile",
