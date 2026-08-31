@@ -10,6 +10,7 @@ This is a mono repository with many different customized Docker images.
 Please take a closer look at the detailed instructions for the individual image:
 
 - [Arcane](contexts/arcane/README.md)
+- [Docker Ubuntu Ansible](contexts/docker-ubuntu-ansible/README.md)
 - [Hoppscotch](contexts/hoppscotch/README.md)
 - [Infisical](contexts/infisical/README.md)
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
@@ -30,6 +31,7 @@ Please take a closer look at the detailed instructions for the individual image:
 ├── .mise/           mise hooks (e.g. postinstall)
 ├── contexts/        One directory per Docker image, each a self-contained build context
 │   ├── arcane/
+│   ├── docker-ubuntu-ansible/
 │   ├── hoppscotch/
 │   ├── infisical/
 │   ├── mcp-auth-proxy/

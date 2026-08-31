@@ -13,6 +13,12 @@
       "base": "ghcr.io/getarcaneapp/manager"
     },
     {
+      "name": "docker-ubuntu-ansible",
+      "context": "docker-ubuntu-ansible",
+      "file": "Dockerfile.ubuntu2404",
+      "base": "geerlingguy/docker-ubuntu2404-ansible"
+    },
+    {
       "name": "hoppscotch",
       "context": "hoppscotch",
       "file": "Dockerfile",
