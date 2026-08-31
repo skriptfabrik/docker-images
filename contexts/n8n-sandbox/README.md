@@ -29,10 +29,12 @@ to derive the published image tags for each image separately (see the
   the referenced file's contents (and unsets the `_FILE` variable afterwards) — this lets
   secrets (e.g. `SANDBOX_API_KEYS`, `SANDBOX_RUNNER_API_KEYS`) be supplied via mounted
   files or Docker/Swarm secrets instead of plain environment variables, without requiring
-  any change in the n8n Sandbox Service itself. `fileenv` also replaces the previous
-  `tini`-based entrypoint of both upstream images — see the
-  [fileenv documentation](https://github.com/skriptfabrik/fileenv#readme) for why a
-  separate init system is not needed.
+  any change in the n8n Sandbox Service itself. `fileenv` only resolves these variables
+  and then `exec`s into `/sbin/tini`, which continues to run as PID 1 as in the upstream
+  images — this keeps `tini` responsible for reaping zombie processes, which matters in
+  particular for `sandbox-runner-dind`, where it reaps the child processes spawned by the
+  inner `dockerd` and its per-sandbox `containerd-shim` processes. `fileenv` itself does
+  not take over any process-supervision duties.
 
 ## Usage
 
