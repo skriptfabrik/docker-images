@@ -10,25 +10,23 @@ uses to derive the published image tags (see the
 
 ## Changes over the upstream image
 
-- **[`fileenv`](https://github.com/skriptfabrik/fileenv) entrypoint wrapper** – the
-  `fileenv` binary is copied in from the
-  [`ghcr.io/skriptfabrik/fileenv`](https://github.com/skriptfabrik/fileenv) image and set
-  as the first `ENTRYPOINT` argument, invoking the upstream `tini` (kept for proper signal
-  handling/zombie reaping) which in turn runs
-  [docker-entrypoint.sh](docker-entrypoint.sh) (see below) with the original startup
-  command passed through as `CMD`. Before that, `fileenv` resolves any `<VAR>_FILE`
-  environment variable into its corresponding `<VAR>` variable by reading the referenced
-  file's contents (and unsets the `_FILE` variable afterwards) — this lets secrets (e.g.
-  `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_DB_PASS`, `SEMAPHORE_COOKIE_HASH`,
-  `SEMAPHORE_COOKIE_ENCRYPTION`, `SEMAPHORE_ACCESS_KEY_ENCRYPTION`) be supplied via
-  mounted files or Docker/Swarm secrets instead of plain environment variables, without
-  requiring any change in Semaphore itself.
-
-- **[docker-entrypoint.sh](docker-entrypoint.sh) `requirements.yml` writer** – runs before
-  the original startup command (`CMD`), and, if `SEMAPHORE_REQUIREMENTS` is set, writes
-  its content to `/etc/semaphore/requirements.yml` (the file used to install additional
-  Ansible collections/roles at startup) — this lets that file's content be supplied via an
+- **[docker-entrypoint.sh](docker-entrypoint.sh) `requirements.yml` writer** – set after
+  the upstream `tini` in `ENTRYPOINT` (kept for proper signal handling/zombie reaping),
+  wrapping the original startup command (kept as `CMD`). Before starting the application,
+  if `SEMAPHORE_REQUIREMENTS` is set, it writes that variable's content to
+  `/etc/semaphore/requirements.yml` (the file used to install additional Ansible
+  collections/roles at startup) — this lets that file's content be supplied via an
   environment variable instead of having to bind-mount it.
+
+This image intentionally does not wrap the container with
+[`fileenv`](https://github.com/skriptfabrik/fileenv) — the upstream `server-wrapper`
+(kept as `CMD`) already natively resolves a `<VAR>_FILE`-suffixed environment variable
+into its corresponding `<VAR>` by reading the referenced file's contents, for
+`SEMAPHORE_DB_USER`, `SEMAPHORE_DB_PASS`, `SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`,
+`SEMAPHORE_LDAP_PASSWORD`, and `SEMAPHORE_ACCESS_KEY_ENCRYPTION`, so `fileenv` would only
+have been redundant for those. Any other environment variable Semaphore supports (e.g.
+`SEMAPHORE_COOKIE_HASH`, `SEMAPHORE_COOKIE_ENCRYPTION`) has no such native `_FILE`
+handling and must be supplied as a plain environment variable.
 
 ## Usage
 
@@ -51,6 +49,4 @@ docker run -it --rm \
 
 Refer to the [official Semaphore documentation](https://docs.semaphoreui.com/) for
 environment variables, volumes, and general configuration — this image does not change
-Semaphore's runtime behavior beyond the `requirements.yml` writer and `fileenv`-based
-secret resolution described above. Any environment variable Semaphore supports can
-alternatively be supplied as `<VAR>_FILE` to have it resolved from a file at startup.
+Semaphore's runtime behavior beyond the `requirements.yml` writer described above.
