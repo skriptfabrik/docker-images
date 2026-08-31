@@ -12,6 +12,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Arcane](contexts/arcane/README.md)
 - [Hoppscotch](contexts/hoppscotch/README.md)
 - [Infisical](contexts/infisical/README.md)
+- [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
 - [n8n](contexts/n8n/README.md)
 - [Nagios](contexts/nagios/README.md)
 - [Open WebUI](contexts/open-webui/README.md)
@@ -31,6 +32,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── arcane/
 │   ├── hoppscotch/
 │   ├── infisical/
+│   ├── mcp-auth-proxy/
 │   ├── n8n/
 │   ├── nagios/
 │   ├── open-webui/

@@ -25,6 +25,12 @@
       "base": "infisical/infisical"
     },
     {
+      "name": "mcp-auth-proxy",
+      "context": "mcp-auth-proxy",
+      "file": "Dockerfile",
+      "base": "ghcr.io/sigbit/mcp-auth-proxy"
+    },
+    {
       "name": "n8n",
       "context": "n8n",
       "file": "Dockerfile",
