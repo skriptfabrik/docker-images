@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.1.0 AS fileenv
 
-FROM semaphoreui/semaphore:v2.19.8
+FROM semaphoreui/semaphore:v2.19.12
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
