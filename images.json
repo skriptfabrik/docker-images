@@ -37,6 +37,12 @@
       "base": "n8nio/n8n"
     },
     {
+      "name": "n8n-mcp",
+      "context": "n8n-mcp",
+      "file": "Dockerfile",
+      "base": "ghcr.io/czlonkowski/n8n-mcp"
+    },
+    {
       "name": "nagios",
       "context": "nagios",
       "file": "Dockerfile",
