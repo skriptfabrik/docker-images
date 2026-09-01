@@ -14,6 +14,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Infisical](contexts/infisical/README.md)
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
 - [n8n](contexts/n8n/README.md)
+- [n8n-mcp](contexts/n8n-mcp/README.md)
 - [Nagios](contexts/nagios/README.md)
 - [Open WebUI](contexts/open-webui/README.md)
 - [Outline](contexts/outline/README.md)
@@ -34,6 +35,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── infisical/
 │   ├── mcp-auth-proxy/
 │   ├── n8n/
+│   ├── n8n-mcp/
 │   ├── nagios/
 │   ├── open-webui/
 │   ├── outline/
