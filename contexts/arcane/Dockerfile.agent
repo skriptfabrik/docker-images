@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.1.0 AS fileenv
 
-FROM ghcr.io/getarcaneapp/agent:v2.10.0
+FROM ghcr.io/getarcaneapp/agent:v2.10.1
 
 # Exclude "_FILE" suffixed environment variables from being processed by fileenv, as they are already handled by the Arcane agent.
 ENV FILEENV_EXCLUDE="EDGE_MTLS_CA_FILE,EDGE_MTLS_CERT_FILE,EDGE_MTLS_KEY_FILE,OIDC_ROLE_MAPPINGS_FILE,SSL_CERT_FILE,TLS_CERT_FILE,TLS_KEY_FILE"
