@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.1.0 AS fileenv
 
-FROM n8nio/n8n-sandbox-service-runner-dind:1.3.0
+FROM n8nio/n8n-sandbox-service-runner-dind:1.3.1
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
