@@ -91,6 +91,12 @@
       "base": "makeplane/plane-live"
     },
     {
+      "name": "rabbitmq",
+      "context": "rabbitmq",
+      "file": "Dockerfile",
+      "base": "rabbitmq"
+    },
+    {
       "name": "searxng",
       "context": "searxng",
       "file": "Dockerfile",
