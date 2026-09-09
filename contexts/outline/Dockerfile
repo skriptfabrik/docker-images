@@ -1,4 +1,4 @@
-FROM outlinewiki/outline:1.10.0
+FROM outlinewiki/outline:1.10.1
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
