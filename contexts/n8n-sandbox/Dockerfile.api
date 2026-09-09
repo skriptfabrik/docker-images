@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM n8nio/n8n-sandbox-service-api:1.3.3
+FROM n8nio/n8n-sandbox-service-api:1.3.4
 
 # Exclude "_FILE" suffixed environment variables from being processed by fileenv, as
 # they are already handled natively by the sandbox API (TLS certificate/key paths,
