@@ -13,7 +13,7 @@ RUN set -e \
     --no-scripts \
     libreoffice-common
 
-FROM n8nio/n8n:2.38.1
+FROM n8nio/n8n:2.38.5
 
 # Copy libreoffice-common from builder stage
 COPY --from=builder /pkgroot/ /
