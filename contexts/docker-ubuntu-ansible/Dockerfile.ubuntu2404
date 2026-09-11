@@ -2,9 +2,9 @@ FROM geerlingguy/docker-ubuntu2404-ansible:latest@sha256:18bf80157ea24b3210eb25c
 
 # Install Docker inside the container to allow Ansible to manage Docker containers during testing
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends docker.io \
+    && apt-get install -y --no-install-recommends docker.io docker-compose-v2 \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man
 
-# Install Python dependencies required for Ansible to manage Docker and PostgreSQL during testing
-RUN pip3 install --no-cache-dir docker jsondiff psycopg2-binary
+# Install Python dependencies required for Ansible to manage Docker during testing
+RUN pip3 install --no-cache-dir docker jsondiff
