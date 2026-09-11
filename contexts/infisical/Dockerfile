@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM infisical/infisical:v0.165.9
+FROM infisical/infisical:v0.165.10
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
