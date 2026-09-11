@@ -14,11 +14,12 @@ version, so CI only produces `latest` and commit-SHA tags for it (no semver tags
 
 ## Changes over the upstream image
 
-- **Docker CLI/daemon (`docker.io`)** – installed so that Ansible running inside the
-  container can manage Docker containers as part of a role/playbook under test.
-- **Python dependencies (`docker`, `jsondiff`, `psycopg2-binary`)** – installed so that
-  Ansible's `community.docker` modules and roles/playbooks that manage PostgreSQL (and
-  compare JSON output) work out of the box during testing.
+- **Docker CLI/daemon and Compose plugin (`docker.io`, `docker-compose-v2`)** – installed
+  so that Ansible running inside the container can manage Docker containers and Compose
+  stacks as part of a role/playbook under test.
+- **Python dependencies (`docker`, `jsondiff`)** – installed so that Ansible's
+  `community.docker` modules and roles/playbooks that compare JSON output work out of the
+  box during testing.
 
 ## Usage
 
