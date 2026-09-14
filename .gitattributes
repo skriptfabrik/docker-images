@@ -1,1 +1,1 @@
-contexts/**/Dockerfile* linguist-language=Dockerfile
+Dockerfile.* linguist-language=Dockerfile
