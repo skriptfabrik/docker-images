@@ -22,6 +22,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Open WebUI](contexts/open-webui/README.md)
 - [Outline](contexts/outline/README.md)
 - [Plane](contexts/plane/README.md)
+- [Postgres](contexts/postgres/README.md)
 - [RabbitMQ](contexts/rabbitmq/README.md)
 - [SearXNG](contexts/searxng/README.md)
 - [Semaphore](contexts/semaphore/README.md)
@@ -47,6 +48,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── open-webui/
 │   ├── outline/
 │   ├── plane/
+│   ├── postgres/
 │   ├── rabbitmq/
 │   ├── searxng/
 │   ├── semaphore/

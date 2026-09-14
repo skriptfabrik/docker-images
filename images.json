@@ -103,6 +103,12 @@
       "base": "makeplane/plane-live"
     },
     {
+      "name": "postgres",
+      "context": "postgres",
+      "file": "Dockerfile",
+      "base": "postgres"
+    },
+    {
       "name": "rabbitmq",
       "context": "rabbitmq",
       "file": "Dockerfile",
