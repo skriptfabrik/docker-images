@@ -19,6 +19,18 @@
       "base": "geerlingguy/docker-ubuntu2404-ansible"
     },
     {
+      "name": "formbricks",
+      "context": "formbricks",
+      "file": "Dockerfile",
+      "base": "ghcr.io/formbricks/formbricks"
+    },
+    {
+      "name": "formbricks-hub",
+      "context": "formbricks",
+      "file": "Dockerfile.hub",
+      "base": "ghcr.io/formbricks/hub"
+    },
+    {
       "name": "hoppscotch",
       "context": "hoppscotch",
       "file": "Dockerfile",
