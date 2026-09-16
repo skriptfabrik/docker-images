@@ -28,16 +28,14 @@ instead.
 
 ## Changes over the upstream image
 
-- **`vector` extension via the PGDG APT repository** – the
-  [PostgreSQL APT repository](https://wiki.postgresql.org/wiki/Apt) signing key is imported
-  and added as an `apt` source for the Debian release the base image is built on (detected
-  from `/etc/os-release` at build time, not hardcoded), then `postgresql-18-pgvector` is
-  installed from it at a pinned version. This installs a precompiled `pgvector` build
-  matching the exact PostgreSQL major version — no build toolchain, no `-march=native`
-  portability concerns, since the PGDG package ships precompiled for both `amd64` and
-  `arm64` — while keeping the exact `postgres:18.6` patch version unchanged.
-- Build-time-only tools (`curl`, `gnupg`) used to fetch and verify the PGDG signing key are
-  removed again after installing the extension package; `ca-certificates` is kept.
+- **`vector` extension via the PGDG APT repository** – the `postgres:18.6` base image
+  already provides the PGDG APT source and its signing key (that's how the base image's own
+  PostgreSQL package is installed in the first place); this layer only installs the pinned
+  `postgresql-18-pgvector` package from that existing source, no additional source or key
+  setup needed. This installs a precompiled `pgvector` build matching the exact PostgreSQL
+  major version — no build toolchain, no `-march=native` portability concerns, since the
+  PGDG package ships precompiled for both `amd64` and `arm64` — while keeping the exact
+  `postgres:18.6` patch version unchanged.
 
 ## Usage
 
