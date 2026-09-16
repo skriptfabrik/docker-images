@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM rabbitmq:4.3.5-management
+FROM rabbitmq:4.3.6-management
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
