@@ -33,7 +33,7 @@ updates:
       formbricks:
         patterns:
           - 'formbricks/*'
-      n8n-sandbox:
+      n8n-sandbox-service:
         patterns:
           - 'n8nio/n8n-sandbox-service-*'
       plane:

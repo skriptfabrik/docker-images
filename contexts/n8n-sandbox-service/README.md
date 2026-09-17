@@ -1,22 +1,23 @@
-# @skriptfabrik/docker-images/n8n-sandbox
+# @skriptfabrik/docker-images/n8n-sandbox-service
 
 Customized [n8n Sandbox Service](https://github.com/n8n-io/n8n-sandbox-service) images
 based on the official [`n8nio/n8n-sandbox-service-api`](https://hub.docker.com/r/n8nio/n8n-sandbox-service-api)
-and [`n8nio/n8n-sandbox-service-runner-dind`](https://hub.docker.com/r/n8nio/n8n-sandbox-service-runner-dind)
+[`n8nio/n8n-sandbox-service-runner-dind`](https://hub.docker.com/r/n8nio/n8n-sandbox-service-runner-dind),
+and [`n8nio/n8n-sandbox-service-sandbox`](https://hub.docker.com/r/n8nio/n8n-sandbox-service-sandbox)
 images.
 
-This context builds two separate images from two Dockerfiles:
+This context builds three separate images from three Dockerfiles:
 
 - [Dockerfile.api](Dockerfile.api) – the sandbox control-plane API, published as
-  `n8n-sandbox-api`.
+  `n8n-sandbox-service-api`.
 - [Dockerfile.runner-dind](Dockerfile.runner-dind) – the privileged Docker-in-Docker
-  sandbox runner, published as `n8n-sandbox-runner-dind`.
+  sandbox runner, published as `n8n-sandbox-service-runner-dind`.
+- [Dockerfile.sandbox](Dockerfile.sandbox) – the sandbox runtime, published as
+  `n8n-sandbox-service-sandbox`.
 
-Each image's version follows the upstream `n8nio/n8n-sandbox-service-api`/
-`n8nio/n8n-sandbox-service-runner-dind` version pinned in its Dockerfile
-(`FROM n8nio/n8n-sandbox-service-<api|runner-dind>:<version>`); this is also what CI uses
-to derive the published image tags for each image separately (see the
-[root README](../../README.md#continuous-integration)).
+Each image's version follows the upstream `n8nio/n8n-sandbox-service-*` version pinned
+in its Dockerfile. This is also what CI uses to derive the published image tags for each
+image separately (see the [root README](../../README.md#continuous-integration)).
 
 ## Changes over the upstream images
 
@@ -43,14 +44,23 @@ docker run -it --rm \
   -p 8080:8080 \
   -e SANDBOX_API_KEYS_FILE=/run/secrets/sandbox_api_keys \
   -v ./sandbox_api_keys:/run/secrets/sandbox_api_keys:ro \
-  ghcr.io/skriptfabrik/docker-images/n8n-sandbox-api:latest
+  ghcr.io/skriptfabrik/docker-images/n8n-sandbox-service-api:latest
 ```
 
 ```sh
 docker run -it --rm --privileged \
   -e SANDBOX_RUNNER_API_KEYS_FILE=/run/secrets/sandbox_runner_api_keys \
   -v ./sandbox_runner_api_keys:/run/secrets/sandbox_runner_api_keys:ro \
-  ghcr.io/skriptfabrik/docker-images/n8n-sandbox-runner-dind:latest
+  ghcr.io/skriptfabrik/docker-images/n8n-sandbox-service-runner-dind:latest
+```
+
+The sandbox runtime image includes `pnpm` `12.4.2` globally. To verify the image
+directly:
+
+```sh
+docker run --rm \
+  ghcr.io/skriptfabrik/docker-images/n8n-sandbox-service-sandbox:latest \
+  pnpm --version
 ```
 
 Refer to the [official n8n Sandbox Service documentation](https://github.com/n8n-io/n8n-sandbox-service)
