@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/formbricks/formbricks:5.4.3
+FROM ghcr.io/formbricks/formbricks:6.0.0
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
