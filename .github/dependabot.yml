@@ -33,6 +33,10 @@ updates:
       formbricks:
         patterns:
           - 'formbricks/*'
+      n8n:
+        patterns:
+          - 'n8nio/n8n'
+          - 'n8nio/runners'
       n8n-sandbox-service:
         patterns:
           - 'n8nio/n8n-sandbox-service-*'
