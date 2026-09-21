@@ -17,6 +17,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
 - [n8n](contexts/n8n/README.md)
 - [n8n-mcp](contexts/n8n-mcp/README.md)
+- [n8n-runners](contexts/n8n-runners/README.md)
 - [n8n Sandbox Service](contexts/n8n-sandbox-service/README.md)
 - [Nagios](contexts/nagios/README.md)
 - [Open WebUI](contexts/open-webui/README.md)
@@ -42,6 +43,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── mcp-auth-proxy/
 │   ├── n8n/
 │   ├── n8n-mcp/
+│   ├── n8n-runners/
 │   ├── n8n-sandbox-service/
 │   ├── nagios/
 │   ├── open-webui/

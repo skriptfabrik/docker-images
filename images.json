@@ -61,6 +61,12 @@
       "base": "ghcr.io/czlonkowski/n8n-mcp"
     },
     {
+      "name": "n8n-runners",
+      "context": "n8n-runners",
+      "file": "Dockerfile",
+      "base": "n8nio/runners"
+    },
+    {
       "name": "n8n-sandbox-service-api",
       "context": "n8n-sandbox-service",
       "file": "Dockerfile.api",
