@@ -30,9 +30,6 @@ updates:
       arcane:
         patterns:
           - 'getarcaneapp/*'
-      formbricks:
-        patterns:
-          - 'formbricks/*'
       n8n:
         patterns:
           - 'n8nio/n8n'

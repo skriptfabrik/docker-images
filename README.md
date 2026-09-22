@@ -11,7 +11,6 @@ Please take a closer look at the detailed instructions for the individual image:
 
 - [Arcane](contexts/arcane/README.md)
 - [Docker Ubuntu Ansible](contexts/docker-ubuntu-ansible/README.md)
-- [Formbricks](contexts/formbricks/README.md)
 - [Hoppscotch](contexts/hoppscotch/README.md)
 - [Infisical](contexts/infisical/README.md)
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
@@ -37,7 +36,6 @@ Please take a closer look at the detailed instructions for the individual image:
 ├── contexts/        One directory per Docker image, each a self-contained build context
 │   ├── arcane/
 │   ├── docker-ubuntu-ansible/
-│   ├── formbricks/
 │   ├── hoppscotch/
 │   ├── infisical/
 │   ├── mcp-auth-proxy/
