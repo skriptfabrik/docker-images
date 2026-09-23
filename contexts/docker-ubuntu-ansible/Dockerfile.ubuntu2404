@@ -1,4 +1,4 @@
-FROM geerlingguy/docker-ubuntu2404-ansible:latest@sha256:8c3395f40c45edd96e7267cde639d2900cf5b2f73d9b903fd703322486e10cf9
+FROM geerlingguy/docker-ubuntu2404-ansible:latest@sha256:3394e335df58c961c00b78ae601ef30cdd7463b112f21b0c5f78674a70526302
 
 # Install Docker inside the container to allow Ansible to manage Docker containers during testing
 RUN apt-get update \
