@@ -86,9 +86,18 @@ jobs:
         id: extract_version
         run: echo "version=$(grep -m 1 'FROM ${{ matrix.base }}' 'contexts/${{ matrix.context }}/${{ matrix.file }}' | cut -d':' -f2- | sed 's/^v//')" >> $GITHUB_OUTPUT
 
+      - name: Set build arguments
+        id: build_args
+        run: |
+          if [ "${{ matrix.context }}" == "n8n" ]; then
+            args="ALPINE_VERSION=$(docker run --rm --entrypoint '' ${{ matrix.base }}:${{ steps.extract_version.outputs.version }} grep -m 1 'VERSION_ID' /etc/os-release | cut -d'=' -f2-)"
+          fi
+          echo "args=$args" >> $GITHUB_OUTPUT
+
       - name: Build Docker image
         uses: skriptfabrik/github-actions/build-docker-image@main
         with:
+          build-args: ${{ steps.build_args.outputs.args }}
           context: contexts/${{ matrix.context }}
           file: ${{ matrix.file }}
           name: ${{ matrix.name }}
