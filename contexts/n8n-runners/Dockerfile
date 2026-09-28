@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM n8nio/runners:2.40.5
+FROM n8nio/runners:2.40.7
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
