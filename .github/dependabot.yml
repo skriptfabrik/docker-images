@@ -40,5 +40,6 @@ updates:
       plane:
         patterns:
           - 'makeplane/*'
+    open-pull-requests-limit: 100
     schedule:
       interval: 'daily'
