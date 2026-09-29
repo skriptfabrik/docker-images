@@ -1,5 +1,17 @@
 version: 2
 
+registries:
+  docker.io:
+    type: 'docker-registry'
+    url: 'registry-1.docker.io'
+    username: '${{ secrets.DOCKERHUB_USERNAME }}'
+    password: '${{ secrets.DOCKERHUB_TOKEN }}'
+  ghcr.io:
+    type: 'docker-registry'
+    url: 'ghcr.io'
+    username: 'USERNAME'
+    password: '${{ secrets.CR_PAT }}'
+
 updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
@@ -41,5 +53,8 @@ updates:
         patterns:
           - 'makeplane/*'
     open-pull-requests-limit: 100
+    registries:
+      - 'docker.io'
+      - 'ghcr.io'
     schedule:
       interval: 'daily'
