@@ -31,6 +31,12 @@
       "base": "infisical/infisical"
     },
     {
+      "name": "kaneo",
+      "context": "kaneo",
+      "file": "Dockerfile",
+      "base": "ghcr.io/usekaneo/kaneo"
+    },
+    {
       "name": "mcp-auth-proxy",
       "context": "mcp-auth-proxy",
       "file": "Dockerfile",

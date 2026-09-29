@@ -13,6 +13,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Docker Ubuntu Ansible](contexts/docker-ubuntu-ansible/README.md)
 - [Hoppscotch](contexts/hoppscotch/README.md)
 - [Infisical](contexts/infisical/README.md)
+- [Kaneo](contexts/kaneo/README.md)
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
 - [n8n](contexts/n8n/README.md)
 - [n8n-mcp](contexts/n8n-mcp/README.md)
@@ -38,6 +39,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── docker-ubuntu-ansible/
 │   ├── hoppscotch/
 │   ├── infisical/
+│   ├── kaneo/
 │   ├── mcp-auth-proxy/
 │   ├── n8n/
 │   ├── n8n-mcp/
