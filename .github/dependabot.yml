@@ -3,7 +3,7 @@ version: 2
 registries:
   docker.io:
     type: 'docker-registry'
-    url: 'registry-1.docker.io'
+    url: 'docker.io'
     username: '${{ secrets.DOCKERHUB_USERNAME }}'
     password: '${{ secrets.DOCKERHUB_TOKEN }}'
   ghcr.io:

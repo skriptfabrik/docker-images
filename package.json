@@ -7,7 +7,7 @@
     "@commitlint/config-conventional": "^21.2.3",
     "prettier": "^3.9.9"
   },
-  "packageManager": "pnpm@11.21.0",
+  "packageManager": "pnpm@12.8.1",
   "devEngines": {
     "runtime": {
       "name": "node",

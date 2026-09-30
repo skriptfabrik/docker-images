@@ -1,16 +1,13 @@
 [settings]
-idiomatic_version_file_enable_tools = ["node"]
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
 
 [env]
 _.file = [".env"]
 _.path = ["{{config_root}}/node_modules/.bin"]
-COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
+PNPM_CONFIG_STORE_DIR = "~/.local/share/pnpm/store"
 
 [tools]
 hadolint = "latest"
-
-[hooks]
-postinstall = ". {{config_root}}/.mise/hooks/postinstall.sh"
 
 [tasks.install]
 description = "Install dependencies"
