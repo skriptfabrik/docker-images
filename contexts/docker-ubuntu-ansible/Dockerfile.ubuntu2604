@@ -1,4 +1,4 @@
-FROM geerlingguy/docker-ubuntu2404-ansible:latest@sha256:bbf48c50bf652d059118ba025663055ca64f550adaa13405021f418d52a52a84
+FROM geerlingguy/docker-ubuntu2604-ansible:latest@sha256:fb716fe466d3e9dcec17c3e04f78c6ef3b4c4a1cbf00f1df8a6a72df913e3ce0
 
 # Add the official Docker APT repository
 ADD --chmod=644 https://download.docker.com/linux/ubuntu/gpg /etc/apt/keyrings/docker.asc
