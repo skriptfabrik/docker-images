@@ -1,15 +1,16 @@
 # @skriptfabrik/docker-images/docker-ubuntu-ansible
 
 Customized Ansible test target image based on the official
-[`geerlingguy/docker-ubuntu2404-ansible`](https://hub.docker.com/r/geerlingguy/docker-ubuntu2404-ansible)
-image (Ubuntu 24.04 with `systemd` and Ansible preinstalled). Unlike the other images in
+[`geerlingguy/docker-ubuntu2604-ansible`](https://hub.docker.com/r/geerlingguy/docker-ubuntu2604-ansible)
+image (Ubuntu 26.04 with `systemd` and Ansible preinstalled). Unlike the other images in
 this repository, this isn't a runtime service — it's used as the container platform for
 [Molecule](https://ansible.readthedocs.io/projects/molecule/) tests of Ansible roles and
 playbooks in CI.
 
-Unlike the other images in this repository, [Dockerfile.ubuntu2404](Dockerfile.ubuntu2404)
-tracks the upstream `geerlingguy/docker-ubuntu2404-ansible:latest` tag rather than a pinned
-version, so CI only produces `latest` and commit-SHA tags for it (no semver tags) — see the
+Unlike the other images in this repository, [Dockerfile.ubuntu2604](Dockerfile.ubuntu2604)
+pins the upstream `geerlingguy/docker-ubuntu2604-ansible:latest` tag to a specific digest,
+so updating the digest is required to consume upstream changes. CI only produces `latest`
+and commit-SHA tags for it (no semver tags) — see the
 [root README](../../README.md#continuous-integration).
 
 ## Changes over the upstream image
@@ -40,7 +41,7 @@ platforms:
 ```
 
 Refer to the
-[official `geerlingguy/docker-ubuntu2404-ansible` documentation](https://hub.docker.com/r/geerlingguy/docker-ubuntu2404-ansible)
+[official `geerlingguy/docker-ubuntu2604-ansible` documentation](https://hub.docker.com/r/geerlingguy/docker-ubuntu2604-ansible)
 for base image usage and caveats (it's for isolated testing, not production) — this image
 does not change the base image's runtime behavior beyond the added packages described
 above.
