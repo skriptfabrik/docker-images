@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/usekaneo/kaneo:2.29.3
+FROM ghcr.io/usekaneo/kaneo:2.30.1
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
