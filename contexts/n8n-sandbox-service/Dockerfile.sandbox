@@ -1,4 +1,4 @@
-FROM n8nio/n8n-sandbox-service-sandbox:1.5.0
+FROM n8nio/n8n-sandbox-service-sandbox:1.6.0
 
 USER 0:0
 
