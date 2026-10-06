@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/czlonkowski/n8n-mcp:2.91.0
+FROM ghcr.io/czlonkowski/n8n-mcp:2.92.1
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
