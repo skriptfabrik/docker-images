@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM hoppscotch/hoppscotch:2026.8.2
+FROM hoppscotch/hoppscotch:2026.9.0
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
