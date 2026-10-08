@@ -10,7 +10,11 @@ export default {
         message,
       ),
     (message) =>
-      /^Signed-off-by: (dependabot|github-actions)\[bot\] <(49699333|41898282)\+(dependabot|github-actions)\[bot\]@users\.noreply\.github\.com>$/m.test(
+      /^Signed-off-by: (github-actions)\[bot\] <(49699333|41898282)\+(github-actions)\[bot\]@users\.noreply\.github\.com>$/m.test(
+        message,
+      ),
+    (message) =>
+      /^Signed-off-by: renovate\[bot\] <29139614\+renovate\[bot\]@users\.noreply\.github\.com>$/m.test(
         message,
       ),
   ],
