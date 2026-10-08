@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [":gitSignOff"],
+  "enabledManagers": ["devcontainer", "dockerfile", "github-actions", "npm"],
+  "labels": ["dependencies"],
+  "hostRules": [
+    {
+      "hostType": "docker",
+      "matchHost": "docker.io",
+      "username": "skriptfabrik",
+      "password": "{{ secrets.DOCKERHUB_TOKEN }}"
+    },
+    {
+      "hostType": "docker",
+      "matchHost": "ghcr.io",
+      "username": "skriptfabrik",
+      "password": "{{ secrets.GHCR_TOKEN }}"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["devcontainer"],
+      "addLabels": ["devcontainer"],
+      "schedule": ["* * * * 0"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "addLabels": ["docker"],
+      "schedule": ["* 0-3 * * *"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["ghcr.io/getarcaneapp/*"],
+      "groupName": "arcane"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["n8nio/n8n", "n8nio/runners"],
+      "groupName": "n8n"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["n8nio/n8n-sandbox-service-*"],
+      "groupName": "n8n-sandbox-service"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["makeplane/*"],
+      "groupName": "plane"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["github_actions"],
+      "schedule": ["* * * * 0"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "addLabels": ["javascript"],
+      "schedule": ["* * * * 1"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@commitlint/*"],
+      "groupName": "commitlint"
+    }
+  ],
+  "prConcurrentLimit": 100,
+  "prBodyTemplate": "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}{{{controls}}}{{{footer}}}"
+}

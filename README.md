@@ -32,7 +32,7 @@ Please take a closer look at the detailed instructions for the individual image:
 ```
 .
 ├── .devcontainer/   Dev Container configuration for this repository
-├── .github/         GitHub Actions workflows, CODEOWNERS, Dependabot config
+├── .github/         GitHub Actions workflows, CODEOWNERS, Renovate config
 ├── .mise/           mise hooks (e.g. postinstall)
 ├── contexts/        One directory per Docker image, each a self-contained build context
 │   ├── arcane/
@@ -126,7 +126,7 @@ pushes to `main`:
 
 Dependencies (GitHub Actions, devcontainer features, npm packages, and each Docker
 image's base image/packages) are kept up to date automatically via
-[Dependabot](.github/dependabot.yml).
+[Renovate](.github/renovate.json).
 
 ## Contributing
 
