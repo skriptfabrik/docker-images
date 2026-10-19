@@ -56,11 +56,13 @@
     {
       "matchManagers": ["npm"],
       "addLabels": ["javascript"],
+      "minimumReleaseAge": "1 day",
       "schedule": ["* * * * 1"]
     },
     {
       "matchManagers": ["npm"],
       "matchPackageNames": ["@commitlint/*"],
+      "minimumReleaseAge": "1 day",
       "groupName": "commitlint"
     }
   ],
