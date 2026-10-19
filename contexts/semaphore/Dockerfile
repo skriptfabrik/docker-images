@@ -1,4 +1,4 @@
-FROM semaphoreui/semaphore:v2.19.14
+FROM semaphoreui/semaphore:v2.19.17
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
