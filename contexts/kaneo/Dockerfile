@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/usekaneo/kaneo:2.35.0
+FROM ghcr.io/usekaneo/kaneo:2.46.2
 
 ENV FILEENV_EXCLUDE="AUTH_SECRET_FILE,CUSTOM_OAUTH_CLIENT_SECRET_FILE,POSTGRES_PASSWORD_FILE"
 
