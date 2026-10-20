@@ -25,8 +25,9 @@ to derive the published image tags (see the [root README](../../README.md#contin
 - **Built-in drop-in scripts**:
   - [`10-nagios.sh`](docker-entrypoint.d/10-nagios.sh) – renames the default `nagiosadmin`
     web UI user to `${NAGIOSADMIN_USER}` in `cgi.cfg`, (re-)generates
-    `${NAGIOS_HOME}/etc/htpasswd.users` for `${NAGIOSADMIN_USER}` from `${NAGIOSADMIN_PASS}`,
-    and sets `use_timezone` in `nagios.cfg` to `${NAGIOS_TIMEZONE}`.
+    `${NAGIOS_HOME}/etc/htpasswd.users` for `${NAGIOSADMIN_USER}` from `${NAGIOSADMIN_PASS}`
+    (or from the contents of `${NAGIOSADMIN_PASS_FILE}`, if that file exists), and sets
+    `use_timezone` in `nagios.cfg` to `${NAGIOS_TIMEZONE}`.
   - [`20-postmap.sh`](docker-entrypoint.d/20-postmap.sh) – if
     `/etc/postfix/sasl_passwd` is not already present and `${SMTP_HOST}`, `${SMTP_USER}`,
     and `${SMTP_PASS}` are all set, generates and `postmap`s a Postfix SASL password map
@@ -38,14 +39,15 @@ to derive the published image tags (see the [root README](../../README.md#contin
 
 ## Environment variables
 
-| Variable           | Default (from base image) | Description                                                                                                                        |
-| ------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `NAGIOSADMIN_USER` | `nagiosadmin`             | Username for the Nagios web UI (replaces `nagiosadmin` in `cgi.cfg`).                                                              |
-| `NAGIOSADMIN_PASS` | `nagios`                  | Password for `NAGIOSADMIN_USER` (hashed into `htpasswd.users`). Change this in production.                                         |
-| `NAGIOS_TIMEZONE`  | `UTC`                     | Timezone used by Nagios (`use_timezone` in `nagios.cfg`).                                                                          |
-| `SMTP_HOST`        | _(unset)_                 | Optional SMTP relay host; if set together with `SMTP_USER`/`SMTP_PASS`, Postfix SASL is configured for outgoing notification mail. |
-| `SMTP_USER`        | _(unset)_                 | Optional SMTP username, see `SMTP_HOST`.                                                                                           |
-| `SMTP_PASS`        | _(unset)_                 | Optional SMTP password, see `SMTP_HOST`.                                                                                           |
+| Variable                | Default (from base image) | Description                                                                                                                                                                      |
+| ----------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NAGIOSADMIN_USER`      | `nagiosadmin`             | Username for the Nagios web UI (replaces `nagiosadmin` in `cgi.cfg`).                                                                                                            |
+| `NAGIOSADMIN_PASS`      | `nagios`                  | Password for `NAGIOSADMIN_USER` (hashed into `htpasswd.users`). Change this in production. Ignored if `NAGIOSADMIN_PASS_FILE` points to an existing file.                        |
+| `NAGIOSADMIN_PASS_FILE` | _(unset)_                 | Optional path to a file containing the password for `NAGIOSADMIN_USER` (e.g. a Docker/Compose secret). If the file exists, its contents take precedence over `NAGIOSADMIN_PASS`. |
+| `NAGIOS_TIMEZONE`       | `UTC`                     | Timezone used by Nagios (`use_timezone` in `nagios.cfg`).                                                                                                                        |
+| `SMTP_HOST`             | _(unset)_                 | Optional SMTP relay host; if set together with `SMTP_USER`/`SMTP_PASS`, Postfix SASL is configured for outgoing notification mail.                                               |
+| `SMTP_USER`             | _(unset)_                 | Optional SMTP username, see `SMTP_HOST`.                                                                                                                                         |
+| `SMTP_PASS`             | _(unset)_                 | Optional SMTP password, see `SMTP_HOST`.                                                                                                                                         |
 
 `NAGIOS_HOME` (`/opt/nagios`), `NAGIOS_USER`, and `NAGIOS_GROUP` come from the upstream
 `jasonrivers/nagios` image; see its documentation for these and other base-image variables.
@@ -64,3 +66,26 @@ docker run -it --rm \
 
 Mount your Nagios object configuration into `/opt/nagios/etc/conf.d` (`${NAGIOS_HOME}/etc/conf.d`)
 — this is the only directory `nagios.cfg` loads config from in this image.
+
+### Admin password from a secret
+
+Instead of passing the web UI password in plain text via `NAGIOSADMIN_PASS`, you can point
+`NAGIOSADMIN_PASS_FILE` to a file containing it, e.g. a Docker Compose secret:
+
+```yaml
+services:
+  nagios:
+    image: ghcr.io/skriptfabrik/docker-images/nagios:latest
+    environment:
+      NAGIOSADMIN_USER: admin
+      NAGIOSADMIN_PASS_FILE: /run/secrets/nagiosadmin_pass
+    secrets:
+      - nagiosadmin_pass
+
+secrets:
+  nagiosadmin_pass:
+    file: ./nagiosadmin_pass.txt
+```
+
+The file contents are used as the password (trailing newlines are stripped). If
+`NAGIOSADMIN_PASS_FILE` is unset or the file does not exist, `NAGIOSADMIN_PASS` is used instead.
