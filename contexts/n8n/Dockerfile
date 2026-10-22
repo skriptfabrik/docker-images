@@ -1,6 +1,4 @@
-ARG ALPINE_VERSION=3.24
-
-FROM alpine:${ALPINE_VERSION} AS builder
+FROM alpine:2.24@sha256:71e9b7bae160ba167fa17414401b94cbcdaf3c32feeab9298bd794a2a0614c35 AS builder
 
 # Install libreoffice-common in builder stage
 RUN set -e \
