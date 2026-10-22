@@ -30,8 +30,9 @@ to derive the published image tags (see the [root README](../../README.md#contin
     `use_timezone` in `nagios.cfg` to `${NAGIOS_TIMEZONE}`.
   - [`20-postmap.sh`](docker-entrypoint.d/20-postmap.sh) – if
     `/etc/postfix/sasl_passwd` is not already present and `${SMTP_HOST}`, `${SMTP_USER}`,
-    and `${SMTP_PASS}` are all set, generates and `postmap`s a Postfix SASL password map
-    for outgoing notification mails, then removes the plaintext source file.
+    and `${SMTP_PASS}` (or the contents of `${SMTP_PASS_FILE}`, if that file exists) are
+    all set, generates and `postmap`s a Postfix SASL password map for outgoing notification
+    mails, then removes the plaintext source file.
   - [`30-postconf.sh`](docker-entrypoint.d/30-postconf.sh) – if
     `/etc/postfix/sasl_passwd.db` exists (produced by the script above, or supplied via a
     mount), enables Postfix SASL authentication (`smtp_sasl_auth_enable`,
@@ -47,7 +48,8 @@ to derive the published image tags (see the [root README](../../README.md#contin
 | `NAGIOS_TIMEZONE`       | `UTC`                     | Timezone used by Nagios (`use_timezone` in `nagios.cfg`).                                                                                                                        |
 | `SMTP_HOST`             | _(unset)_                 | Optional SMTP relay host; if set together with `SMTP_USER`/`SMTP_PASS`, Postfix SASL is configured for outgoing notification mail.                                               |
 | `SMTP_USER`             | _(unset)_                 | Optional SMTP username, see `SMTP_HOST`.                                                                                                                                         |
-| `SMTP_PASS`             | _(unset)_                 | Optional SMTP password, see `SMTP_HOST`.                                                                                                                                         |
+| `SMTP_PASS`             | _(unset)_                 | Optional SMTP password, see `SMTP_HOST`. Ignored if `SMTP_PASS_FILE` points to an existing file.                                                                                 |
+| `SMTP_PASS_FILE`        | _(unset)_                 | Optional path to a file containing the SMTP password (e.g. a Docker/Compose secret). If the file exists, its contents take precedence over `SMTP_PASS`.                          |
 
 `NAGIOS_HOME` (`/opt/nagios`), `NAGIOS_USER`, and `NAGIOS_GROUP` come from the upstream
 `jasonrivers/nagios` image; see its documentation for these and other base-image variables.
@@ -67,10 +69,11 @@ docker run -it --rm \
 Mount your Nagios object configuration into `/opt/nagios/etc/conf.d` (`${NAGIOS_HOME}/etc/conf.d`)
 — this is the only directory `nagios.cfg` loads config from in this image.
 
-### Admin password from a secret
+### Passwords from secrets
 
-Instead of passing the web UI password in plain text via `NAGIOSADMIN_PASS`, you can point
-`NAGIOSADMIN_PASS_FILE` to a file containing it, e.g. a Docker Compose secret:
+Instead of passing passwords in plain text via `NAGIOSADMIN_PASS` and `SMTP_PASS`, you can
+point `NAGIOSADMIN_PASS_FILE` and `SMTP_PASS_FILE` to files containing them, e.g. Docker
+Compose secrets:
 
 ```yaml
 services:
@@ -79,13 +82,20 @@ services:
     environment:
       NAGIOSADMIN_USER: admin
       NAGIOSADMIN_PASS_FILE: /run/secrets/nagiosadmin_pass
+      SMTP_HOST: "[smtp.example.com]:587"
+      SMTP_USER: nagios@example.com
+      SMTP_PASS_FILE: /run/secrets/smtp_pass
     secrets:
       - nagiosadmin_pass
+      - smtp_pass
 
 secrets:
   nagiosadmin_pass:
     file: ./nagiosadmin_pass.txt
+  smtp_pass:
+    file: ./smtp_pass.txt
 ```
 
-The file contents are used as the password (trailing newlines are stripped). If
-`NAGIOSADMIN_PASS_FILE` is unset or the file does not exist, `NAGIOSADMIN_PASS` is used instead.
+The file contents are used as the password (trailing newlines are stripped). If a `*_PASS_FILE`
+variable is unset or the file does not exist, the corresponding `*_PASS` variable is used
+instead.
