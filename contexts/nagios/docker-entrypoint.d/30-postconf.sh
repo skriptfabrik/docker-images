@@ -1,3 +1,10 @@
+# Configure Postfix generic mapping if the generic.db file exists
+if [ -f /etc/postfix/generic.db ]; then
+	postconf -e "smtp_generic_maps = hash:/etc/postfix/generic"
+else
+	echo "No /etc/postfix/generic.db file found, skipping Postfix generic mapping."
+fi
+
 # Configure Postfix SASL if the sasl_passwd.db file exists
 if [ -f /etc/postfix/sasl_passwd.db ]; then
 	postconf -e "smtp_sasl_auth_enable = yes"

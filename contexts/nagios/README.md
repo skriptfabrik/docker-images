@@ -28,15 +28,22 @@ to derive the published image tags (see the [root README](../../README.md#contin
     `${NAGIOS_HOME}/etc/htpasswd.users` for `${NAGIOSADMIN_USER}` from `${NAGIOSADMIN_PASS}`
     (or from the contents of `${NAGIOSADMIN_PASS_FILE}`, if that file exists), and sets
     `use_timezone` in `nagios.cfg` to `${NAGIOS_TIMEZONE}`.
-  - [`20-postmap.sh`](docker-entrypoint.d/20-postmap.sh) – if
-    `/etc/postfix/sasl_passwd` is not already present and `${SMTP_HOST}`, `${SMTP_USER}`,
-    and `${SMTP_PASS}` (or the contents of `${SMTP_PASS_FILE}`, if that file exists) are
-    all set, generates and `postmap`s a Postfix SASL password map for outgoing notification
-    mails, then removes the plaintext source file.
-  - [`30-postconf.sh`](docker-entrypoint.d/30-postconf.sh) – if
-    `/etc/postfix/sasl_passwd.db` exists (produced by the script above, or supplied via a
-    mount), enables Postfix SASL authentication (`smtp_sasl_auth_enable`,
-    `smtp_sasl_password_maps`, and related `noanonymous`/`AUTH LOGIN` options).
+  - [`20-postmap.sh`](docker-entrypoint.d/20-postmap.sh) – prepares the Postfix lookup
+    tables for outgoing notification mails:
+    - if `/etc/postfix/generic` is not already present and `${SMTP_SENDER}` is set, writes a
+      generic map rewriting the local Nagios sender (`${NAGIOS_USER}`) to `${SMTP_SENDER}`;
+    - if `/etc/postfix/sasl_passwd` is not already present and `${SMTP_HOST}`,
+      `${SMTP_USER}`, and `${SMTP_PASS}` (or the contents of `${SMTP_PASS_FILE}`, if that
+      file exists) are all set, writes a SASL password map.
+
+    Each source file (generated or supplied via a mount) is `postmap`ped and then removed.
+
+  - [`30-postconf.sh`](docker-entrypoint.d/30-postconf.sh) – enables the maps produced by
+    the script above (or supplied via a mount) in the Postfix configuration:
+    - if `/etc/postfix/generic.db` exists, sets `smtp_generic_maps`;
+    - if `/etc/postfix/sasl_passwd.db` exists, enables Postfix SASL authentication
+      (`smtp_sasl_auth_enable`, `smtp_sasl_password_maps`, and related
+      `noanonymous`/`AUTH LOGIN` options).
 
 ## Environment variables
 
@@ -50,6 +57,7 @@ to derive the published image tags (see the [root README](../../README.md#contin
 | `SMTP_USER`             | _(unset)_                 | Optional SMTP username, see `SMTP_HOST`.                                                                                                                                         |
 | `SMTP_PASS`             | _(unset)_                 | Optional SMTP password, see `SMTP_HOST`. Ignored if `SMTP_PASS_FILE` points to an existing file.                                                                                 |
 | `SMTP_PASS_FILE`        | _(unset)_                 | Optional path to a file containing the SMTP password (e.g. a Docker/Compose secret). If the file exists, its contents take precedence over `SMTP_PASS`.                          |
+| `SMTP_SENDER`           | _(unset)_                 | Optional sender address for outgoing notification mail; rewrites the local Nagios sender via a Postfix generic map (`smtp_generic_maps`).                                        |
 
 `NAGIOS_HOME` (`/opt/nagios`), `NAGIOS_USER`, and `NAGIOS_GROUP` come from the upstream
 `jasonrivers/nagios` image; see its documentation for these and other base-image variables.
@@ -85,6 +93,7 @@ services:
       SMTP_HOST: "[smtp.example.com]:587"
       SMTP_USER: nagios@example.com
       SMTP_PASS_FILE: /run/secrets/smtp_pass
+      SMTP_SENDER: nagios@example.com
     secrets:
       - nagiosadmin_pass
       - smtp_pass
