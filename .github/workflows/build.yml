@@ -90,7 +90,7 @@ jobs:
         id: build_args
         run: |
           if [ "${{ matrix.context }}" == "n8n" ]; then
-            args="ALPINE_VERSION=$(docker run --rm --entrypoint '' ${{ matrix.base }}:${{ steps.extract_version.outputs.version }} grep -m 1 'VERSION_ID' /etc/os-release | cut -d'=' -f2-)"
+            args="ALPINE_VERSION=$(docker run --rm --entrypoint '' ${{ matrix.base }}:${{ steps.extract_version.outputs.version }} grep -m 1 'VERSION_ID' /etc/os-release | cut -d'=' -f2- | tr -d \")"
           fi
           echo "args=$args" >> $GITHUB_OUTPUT
 
