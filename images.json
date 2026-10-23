@@ -103,6 +103,12 @@
       "base": "outlinewiki/outline"
     },
     {
+      "name": "plane-aio",
+      "context": "plane",
+      "file": "Dockerfile.aio",
+      "base": "makeplane/plane-aio-community"
+    },
+    {
       "name": "plane-backend",
       "context": "plane",
       "file": "Dockerfile.backend",
