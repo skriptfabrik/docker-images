@@ -1,7 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [":gitSignOff"],
-  "enabledManagers": ["devcontainer", "dockerfile", "github-actions", "npm"],
+  "enabledManagers": [
+    "devcontainer",
+    "dockerfile",
+    "github-actions",
+    "mise",
+    "npm"
+  ],
   "labels": ["dependencies"],
   "hostRules": [
     {
@@ -17,6 +23,12 @@
       "password": "{{ secrets.GHCR_TOKEN }}"
     }
   ],
+  "mise": {
+    "lockFileMaintenance": {
+      "enabled": true,
+      "schedule": ["at any time"]
+    }
+  },
   "packageRules": [
     {
       "matchManagers": ["devcontainer"],
@@ -51,6 +63,11 @@
     {
       "matchManagers": ["github-actions"],
       "addLabels": ["github_actions"],
+      "schedule": ["* * * * 0"]
+    },
+    {
+      "matchManagers": ["mise"],
+      "addLabels": ["mise"],
       "schedule": ["* * * * 0"]
     },
     {

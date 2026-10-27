@@ -4,11 +4,11 @@
   "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
-      "version": "latest",
+      "version": "29.9.2",
       "dockerDashComposeVersion": "v2"
     },
     "ghcr.io/devcontainers-extra/features/mise:1": {
-      "version": "latest"
+      "version": "2026.10.20"
     }
   },
   "customizations": {
@@ -26,8 +26,23 @@
   },
   "mounts": [
     {
-      "source": "vscode-local-data",
-      "target": "/home/vscode/.local",
+      "source": "vscode-cache-mise",
+      "target": "/home/vscode/.cache/mise",
+      "type": "volume"
+    },
+    {
+      "source": "vscode-cache-pnpm",
+      "target": "/home/vscode/.cache/pnpm",
+      "type": "volume"
+    },
+    {
+      "source": "vscode-local-share-mise",
+      "target": "/home/vscode/.local/share/mise",
+      "type": "volume"
+    },
+    {
+      "source": "vscode-local-share-pnpm",
+      "target": "/home/vscode/.local/share/pnpm",
       "type": "volume"
     }
   ],

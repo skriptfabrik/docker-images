@@ -1,12 +1,17 @@
 # GitHub Actions files
-/.github/             @skriptfabrik/github-actions-maintainers
+/.github/               @skriptfabrik/github-actions-maintainers
 
 # Devcontainer configuration
-/.devcontainer/       @skriptfabrik/devcontainer-maintainers
+/.devcontainer/         @skriptfabrik/devcontainer-maintainers
 
 # Docker files
-Dockerfile*           @skriptfabrik/docker-maintainers
+Dockerfile*             @skriptfabrik/docker-maintainers
+
+# Mise tools and configurations
+/.mise/                 @skriptfabrik/mise-maintainers
+mise.lock               @skriptfabrik/mise-maintainers
+mise.toml               @skriptfabrik/mise-maintainers
 
 # NPM package files
-package.json          @skriptfabrik/npm-maintainers
-pnpm-lock.yaml        @skriptfabrik/npm-maintainers
+package.json            @skriptfabrik/npm-maintainers
+pnpm-lock.yaml          @skriptfabrik/npm-maintainers
