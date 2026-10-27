@@ -83,7 +83,8 @@
       "groupName": "commitlint"
     }
   ],
-  "prConcurrentLimit": 100,
   "prBodyTemplate": "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}{{{controls}}}{{{footer}}}",
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
   "timezone": "Europe/Berlin"
 }
