@@ -133,6 +133,12 @@
       "base": "rabbitmq"
     },
     {
+      "name": "renovate-ce",
+      "context": "renovate-ce",
+      "file": "Dockerfile",
+      "base": "ghcr.io/mend/renovate-ce"
+    },
+    {
       "name": "searxng",
       "context": "searxng",
       "file": "Dockerfile",

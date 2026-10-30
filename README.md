@@ -25,6 +25,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Plane](contexts/plane/README.md)
 - [Pocket ID](contexts/pocket-id/README.md)
 - [RabbitMQ](contexts/rabbitmq/README.md)
+- [Renovate CE](contexts/renovate-ce/README.md)
 - [SearXNG](contexts/searxng/README.md)
 - [Semaphore](contexts/semaphore/README.md)
 
@@ -52,6 +53,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── plane/
 │   ├── pocket-id/
 │   ├── rabbitmq/
+│   ├── renovate-ce/
 │   ├── searxng/
 │   ├── semaphore/
 ├── mise.toml        Tool versions and tasks (managed via mise)
