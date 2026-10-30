@@ -121,6 +121,12 @@
       "base": "makeplane/plane-live"
     },
     {
+      "name": "pocket-id",
+      "context": "pocket-id",
+      "file": "Dockerfile",
+      "base": "pocketid/pocket-id"
+    },
+    {
       "name": "rabbitmq",
       "context": "rabbitmq",
       "file": "Dockerfile",
