@@ -23,6 +23,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Open WebUI](contexts/open-webui/README.md)
 - [Outline](contexts/outline/README.md)
 - [Plane](contexts/plane/README.md)
+- [Pocket ID](contexts/pocket-id/README.md)
 - [RabbitMQ](contexts/rabbitmq/README.md)
 - [SearXNG](contexts/searxng/README.md)
 - [Semaphore](contexts/semaphore/README.md)
@@ -49,6 +50,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── open-webui/
 │   ├── outline/
 │   ├── plane/
+│   ├── pocket-id/
 │   ├── rabbitmq/
 │   ├── searxng/
 │   ├── semaphore/
