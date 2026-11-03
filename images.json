@@ -25,6 +25,12 @@
       "base": "geerlingguy/docker-ubuntu2604-ansible"
     },
     {
+      "name": "mcp-grafana",
+      "context": "mcp-grafana",
+      "file": "Dockerfile",
+      "base": "grafana/mcp-grafana"
+    },
+    {
       "name": "hoppscotch",
       "context": "hoppscotch",
       "file": "Dockerfile",
