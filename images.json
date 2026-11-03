@@ -149,6 +149,12 @@
       "context": "semaphore",
       "file": "Dockerfile",
       "base": "semaphoreui/semaphore"
+    },
+    {
+      "name": "semaphore-mcp",
+      "context": "semaphore-mcp",
+      "file": "Dockerfile",
+      "base": "ghcr.io/cloin/semaphore-mcp"
     }
   ]
 }
