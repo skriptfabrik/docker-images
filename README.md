@@ -15,6 +15,7 @@ Please take a closer look at the detailed instructions for the individual image:
 - [Infisical](contexts/infisical/README.md)
 - [Kaneo](contexts/kaneo/README.md)
 - [MCP Auth Proxy](contexts/mcp-auth-proxy/README.md)
+- [MCP Grafana](contexts/mcp-grafana/README.md)
 - [n8n](contexts/n8n/README.md)
 - [n8n-mcp](contexts/n8n-mcp/README.md)
 - [n8n-runners](contexts/n8n-runners/README.md)
@@ -43,6 +44,7 @@ Please take a closer look at the detailed instructions for the individual image:
 │   ├── infisical/
 │   ├── kaneo/
 │   ├── mcp-auth-proxy/
+│   ├── mcp-grafana/
 │   ├── n8n/
 │   ├── n8n-mcp/
 │   ├── n8n-runners/
