@@ -36,6 +36,11 @@
       "type": "volume"
     },
     {
+      "source": "vscode-claude",
+      "target": "/home/vscode/.claude",
+      "type": "volume"
+    },
+    {
       "source": "vscode-config-gh",
       "target": "/home/vscode/.config/gh",
       "type": "volume"
@@ -52,6 +57,7 @@
     }
   ],
   "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
     "MISE_TRUSTED_CONFIG_PATHS": "${containerWorkspaceFolder}"
   },
   "remoteEnv": {
