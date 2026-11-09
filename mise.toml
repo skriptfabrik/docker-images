@@ -7,6 +7,7 @@ _.path = ["{{config_root}}/node_modules/.bin"]
 PNPM_CONFIG_STORE_DIR = "~/.local/share/pnpm/store"
 
 [tools]
+gh = "2.103.3"
 hadolint = "2.15.1"
 
 [tasks.install]

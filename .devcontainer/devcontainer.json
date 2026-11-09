@@ -36,6 +36,11 @@
       "type": "volume"
     },
     {
+      "source": "vscode-config-gh",
+      "target": "/home/vscode/.config/gh",
+      "type": "volume"
+    },
+    {
       "source": "vscode-local-share-mise",
       "target": "/home/vscode/.local/share/mise",
       "type": "volume"
