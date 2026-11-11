@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM grafana/mcp-grafana:2.2.0
+FROM grafana/mcp-grafana:2.3.0
 
 ENV FILEENV_EXCLUDE="GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE"
 
