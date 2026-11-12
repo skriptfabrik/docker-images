@@ -155,6 +155,12 @@
       "context": "semaphore-mcp",
       "file": "Dockerfile",
       "base": "ghcr.io/cloin/semaphore-mcp"
+    },
+    {
+      "name": "traefik",
+      "context": "traefik",
+      "file": "Dockerfile",
+      "base": "traefik"
     }
   ]
 }

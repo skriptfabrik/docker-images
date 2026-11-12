@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [":gitSignOff"],
+  "extends": [":gitSignOff", "customManagers:dockerfileVersions"],
   "enabledManagers": [
+    "custom.regex",
     "devcontainer",
     "dockerfile",
     "github-actions",
@@ -31,6 +32,11 @@
   },
   "packageRules": [
     {
+      "matchManagers": ["custom.regex"],
+      "addLabels": ["docker"],
+      "schedule": ["* 0-3 * * *"]
+    },
+    {
       "matchManagers": ["devcontainer"],
       "addLabels": ["devcontainer"],
       "schedule": ["* * * * 0"]
@@ -59,6 +65,13 @@
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["makeplane/*"],
       "groupName": "plane"
+    },
+    {
+      "matchPackageNames": [
+        "traefik",
+        "maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      ],
+      "groupName": "traefik"
     },
     {
       "matchManagers": ["github-actions"],
