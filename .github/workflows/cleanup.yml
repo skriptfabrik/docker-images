@@ -67,12 +67,26 @@ jobs:
       matrix:
         name: ${{ fromJson(needs.packages.outputs.names-json) }}
 
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PACKAGE: docker-images/${{ matrix.name }}
+
     steps:
+      # Runs first, so ghost and orphaned images are gone before the young images are counted.
+      - name: Delete untagged images
+        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        with:
+          package: ${{ env.PACKAGE }}
+          # Untagged manifests of a build that is being pushed right now are not referenced by a
+          # tagged index yet. Skipping recent ones avoids deleting them while the build is running.
+          older-than: 1 day
+          delete-untagged: true
+          delete-ghost-images: true
+          delete-orphaned-images: true
+          dry-run: ${{ inputs.dry-run == true }}
+
       - name: Calculate number of old images to keep
         id: keep
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PACKAGE: docker-images/${{ matrix.name }}
         run: |
           # The cleanup action combines `older-than` and `keep-n-tagged` as "keep all images younger
           # than X plus the N newest older ones". We want "keep the N newest images overall plus all
@@ -93,18 +107,36 @@ jobs:
       - name: Delete old tagged images
         uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
-          package: docker-images/${{ matrix.name }}
+          package: ${{ env.PACKAGE }}
           older-than: ${{ env.MAX_AGE_DAYS }} days
           keep-n-tagged: ${{ steps.keep.outputs.count }}
           delete-untagged: false
           dry-run: ${{ inputs.dry-run == true }}
 
-      - name: Delete untagged images
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
-        with:
-          package: docker-images/${{ matrix.name }}
-          delete-untagged: true
-          delete-ghost-images: true
-          delete-orphaned-images: true
-          validate: true
-          dry-run: ${{ inputs.dry-run == true }}
+      - name: Validate remaining images
+        run: |
+          # The `validate` option of the cleanup action only logs warnings, so we check ourselves that
+          # every child manifest of every remaining tagged image still exists, and fail otherwise.
+          repository="${{ github.repository_owner }}/$PACKAGE"
+          token=$(curl -fsS -u "${{ github.actor }}:$GH_TOKEN" \
+            "https://ghcr.io/token?service=ghcr.io&scope=repository:$repository:pull" | jq -r .token)
+          accept="application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json"
+          digests=$(gh api --paginate \
+            "/orgs/${{ github.repository_owner }}/packages/container/${PACKAGE//\//%2F}/versions?per_page=100" \
+            --jq '.[] | select((.metadata.container.tags | length) > 0) | .name')
+          failed=0
+          for digest in $digests; do
+            children=$(curl -fsS -H "Authorization: Bearer $token" -H "Accept: $accept" \
+              "https://ghcr.io/v2/$repository/manifests/$digest" | jq -r '.manifests[]?.digest')
+            for child in $children; do
+              if ! curl -fsS -o /dev/null -I -H "Authorization: Bearer $token" -H "Accept: $accept" \
+                "https://ghcr.io/v2/$repository/manifests/$child"; then
+                echo "::error::Child manifest $child of image $digest is missing"
+                failed=1
+              fi
+            done
+          done
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
+          echo "All $(echo "$digests" | grep -c .) tagged images are complete"
