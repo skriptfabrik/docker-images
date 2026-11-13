@@ -142,8 +142,9 @@ image's base image/packages) are kept up to date automatically via
 old images from the GitHub Container Registry for every `docker-images/*` package, including
 images that are no longer listed in [images.json](images.json):
 
-- **Untagged images** are always deleted, except for platform and attestation manifests
-  that belong to a kept multi-arch image.
+- **Untagged images** older than one day are deleted, except for platform and attestation
+  manifests that belong to a kept multi-arch image. The grace period protects images that
+  are being pushed while the cleanup runs.
 - **Tagged images** older than 90 days are deleted, but at least the 10 newest tagged
   images per package are always kept, regardless of their age.
 
