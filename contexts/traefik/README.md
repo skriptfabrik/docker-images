@@ -9,6 +9,16 @@ The image version follows the upstream `traefik` version pinned in the
 [Dockerfile](Dockerfile) (`FROM traefik:v<version>`); this is also what CI uses to derive
 the published image tags (see the [root README](../../README.md#continuous-integration)).
 
+## Image tags
+
+The tags `<major>.<minor>.<patch>`, `<major>.<minor>`, `<major>` and `latest` are derived
+from the Traefik version only. A plugin-only update (a Renovate PR that only bumps
+`CROWDSEC_BOUNCER_PLUGIN_VERSION`) therefore overwrites the existing tags of the same
+Traefik version (e.g. `3.7.17`, `3.7`, `3` and `latest`), and tooling that compares tags
+(e.g. Renovate in consuming repositories) does not see it. Consumers who need to pick up
+every plugin update should pin by digest (`traefik:3.7.17@sha256:…`) or use the
+`sha-<commit>` tag that every build publishes as well.
+
 ## Changes over the upstream image
 
 With `--experimental.plugins.*`, Traefik downloads every plugin from `plugins.traefik.io`
@@ -33,15 +43,24 @@ Plugin versions in the static configuration are also invisible to Renovate.
   For every name in `TRAEFIK_CUSTOM_LOCAL_PLUGINS` (separated by commas or spaces), it
   appends `--experimental.localplugins.<name>.modulename=<module>` to the arguments,
   provided the plugin is bundled. Unknown or missing plugins are skipped with a warning on
-  stderr. The arguments are only appended when Traefik itself is started (first argument
-  is `traefik` or a flag), not for subcommands like `traefik version` or `healthcheck`,
-  or for shell commands. They are appended, not prepended, so the original entrypoint
-  still detects a leading flag and prepends `traefik`.
+  stderr, or abort the start with exit code `1` when `TRAEFIK_CUSTOM_LOCAL_PLUGINS_STRICT`
+  is `true` (see [Environment variables](#environment-variables)). The arguments are only
+  appended when Traefik itself is started (a leading flag, or `traefik` followed by
+  nothing or a flag), not for subcommands like `traefik version` or
+  `traefik healthcheck`, or for shell commands. They are appended, not prepended, so the
+  original entrypoint still detects a leading flag and prepends `traefik`.
 - **Original command kept as `CMD`** – overriding `ENTRYPOINT` resets the `CMD` inherited
   from the upstream image, so the upstream command (`traefik`) is set again explicitly.
 
 With `TRAEFIK_CUSTOM_LOCAL_PLUGINS` unset or empty, the image behaves like the upstream
 image.
+
+### Environment variables
+
+| Variable                              | Description                                                                                                                                                                                                                       | Default |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `TRAEFIK_CUSTOM_LOCAL_PLUGINS`        | Names of the bundled local plugins to enable (see `/plugins-local/plugins.txt`), separated by commas or spaces                                                                                                                    | `""`    |
+| `TRAEFIK_CUSTOM_LOCAL_PLUGINS_STRICT` | `true` aborts the start with an error and exit code `1` if a listed plugin is unknown or missing, so a typo fails the deployment instead of only breaking the routers that use the plugin; otherwise it is skipped with a warning | `false` |
 
 ### Why a wrapper instead of plain environment variables
 
