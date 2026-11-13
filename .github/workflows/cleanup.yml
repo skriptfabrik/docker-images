@@ -14,6 +14,11 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
+defaults:
+  run:
+    # Explicit bash enables pipefail, so failing API calls in pipes fail the step
+    shell: bash
+
 env:
   # Tagged images younger than this are always kept
   MAX_AGE_DAYS: 90
@@ -33,7 +38,9 @@ jobs:
       - name: List image names
         id: list
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Listing the packages of an organization is not possible with GITHUB_TOKEN, it requires a
+          # classic personal access token with the read:packages scope.
+          GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
           PREFIX: docker-images/
         run: |
           # We list all container packages of this repository from the registry instead of using
@@ -63,7 +70,6 @@ jobs:
       packages: write
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
         name: ${{ fromJson(needs.packages.outputs.names-json) }}
 
