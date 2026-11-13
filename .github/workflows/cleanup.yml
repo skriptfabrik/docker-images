@@ -20,6 +20,11 @@ env:
   # At least this many tagged images are kept per package, regardless of age
   MIN_KEEP: 10
 
+defaults:
+  run:
+    # Explicit bash enables pipefail, so failing API calls in pipes fail the step
+    shell: bash
+
 jobs:
   packages:
     name: List Packages
@@ -33,7 +38,9 @@ jobs:
       - name: List image names
         id: list
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Listing the packages of an organization is not possible with GITHUB_TOKEN, it requires a
+          # classic personal access token with the read:packages scope.
+          GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
           PREFIX: docker-images/
         run: |
           # We list all container packages of this repository from the registry instead of using
