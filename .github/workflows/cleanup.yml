@@ -1,0 +1,110 @@
+name: Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Only log what would be deleted
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  # Tagged images younger than this are always kept
+  MAX_AGE_DAYS: 90
+  # At least this many tagged images are kept per package, regardless of age
+  MIN_KEEP: 10
+
+jobs:
+  packages:
+    name: List Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    outputs:
+      names-json: ${{ steps.list.outputs.names-json }}
+
+    steps:
+      - name: List image names
+        id: list
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREFIX: docker-images/
+        run: |
+          # We list all container packages of this repository from the registry instead of using
+          # images.json, so images that have been removed from the repository are cleaned up too.
+          names_json=$(gh api --paginate \
+            "/orgs/${{ github.repository_owner }}/packages?package_type=container&per_page=100" \
+            --jq '.[].name' \
+            | jq -R -s -c --arg prefix "$PREFIX" '
+              split("\n")
+              | map(select(startswith($prefix)) | ltrimstr($prefix))
+              | unique
+            ')
+          if [ "$names_json" = "[]" ]; then
+            echo "::error::No container packages found with prefix $PREFIX"
+            exit 1
+          fi
+          echo "::group::Packages"
+          echo "$names_json" | jq .
+          echo "::endgroup::"
+          echo "names-json=$names_json" >> $GITHUB_OUTPUT
+
+  cleanup:
+    name: Cleanup Package (${{ matrix.name }})
+    needs: packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        name: ${{ fromJson(needs.packages.outputs.names-json) }}
+
+    steps:
+      - name: Calculate number of old images to keep
+        id: keep
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE: docker-images/${{ matrix.name }}
+        run: |
+          # The cleanup action combines `older-than` and `keep-n-tagged` as "keep all images younger
+          # than X plus the N newest older ones". We want "keep the N newest images overall plus all
+          # images younger than X", so we subtract the number of young tagged images from N.
+          cutoff=$(date -u -d "$MAX_AGE_DAYS days ago" +%Y-%m-%dT%H:%M:%SZ)
+          young=$(gh api --paginate \
+            "/orgs/${{ github.repository_owner }}/packages/container/${PACKAGE//\//%2F}/versions?per_page=100" \
+            --jq ".[] | select((.metadata.container.tags | length) > 0 and .updated_at >= \"$cutoff\") | .id" \
+            | wc -l)
+          keep=$(( MIN_KEEP - young ))
+          if [ "$keep" -lt 0 ]; then
+            keep=0
+          fi
+          echo "Tagged images younger than $MAX_AGE_DAYS days: $young"
+          echo "Tagged images older than $MAX_AGE_DAYS days to keep: $keep"
+          echo "count=$keep" >> $GITHUB_OUTPUT
+
+      - name: Delete old tagged images
+        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        with:
+          package: docker-images/${{ matrix.name }}
+          older-than: ${{ env.MAX_AGE_DAYS }} days
+          keep-n-tagged: ${{ steps.keep.outputs.count }}
+          delete-untagged: false
+          dry-run: ${{ inputs.dry-run == true }}
+
+      - name: Delete untagged images
+        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        with:
+          package: docker-images/${{ matrix.name }}
+          delete-untagged: true
+          delete-ghost-images: true
+          delete-orphaned-images: true
+          validate: true
+          dry-run: ${{ inputs.dry-run == true }}

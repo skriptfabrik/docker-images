@@ -136,6 +136,17 @@ Dependencies (GitHub Actions, devcontainer features, npm packages, and each Dock
 image's base image/packages) are kept up to date automatically via
 [Renovate](.github/renovate.json).
 
+### Registry cleanup
+
+[.github/workflows/cleanup.yml](.github/workflows/cleanup.yml) runs every Monday and removes
+old images from the GitHub Container Registry for every `docker-images/*` package, including
+images that are no longer listed in [images.json](images.json):
+
+- **Untagged images** are always deleted, except for platform and attestation manifests
+  that belong to a kept multi-arch image.
+- **Tagged images** older than 90 days are deleted, but at least the 10 newest tagged
+  images per package are always kept, regardless of their age.
+
 ## Contributing
 
 - Ownership of specific paths is defined in [.github/CODEOWNERS](.github/CODEOWNERS).
