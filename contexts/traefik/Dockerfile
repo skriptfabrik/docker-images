@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM traefik:v3.7.17
+FROM traefik:v3.7.19
 
 # renovate: datasource=github-tags depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
 ARG CROWDSEC_BOUNCER_PLUGIN_VERSION=v1.8.1
