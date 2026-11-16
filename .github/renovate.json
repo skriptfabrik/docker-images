@@ -1,6 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [":gitSignOff", "customManagers:dockerfileVersions"],
+  "extends": [
+    "config:recommended",
+    "customManagers:dockerfileVersions",
+    ":disableRateLimiting",
+    ":gitSignOff",
+    ":semanticCommits",
+    ":semanticPrefixChore",
+    ":semanticCommitScopeDisabled"
+  ],
+  "labels": ["dependencies"],
+  "timezone": "Europe/Berlin",
   "enabledManagers": [
     "custom.regex",
     "devcontainer",
@@ -9,7 +19,6 @@
     "mise",
     "npm"
   ],
-  "labels": ["dependencies"],
   "hostRules": [
     {
       "hostType": "docker",
@@ -24,49 +33,80 @@
       "password": "{{ secrets.GHCR_TOKEN }}"
     }
   ],
-  "mise": {
-    "lockFileMaintenance": {
-      "enabled": true,
-      "schedule": ["at any time"]
-    }
+  "lockFileMaintenance": {
+    "enabled": true
   },
   "packageRules": [
     {
-      "matchManagers": ["custom.regex"],
-      "addLabels": ["docker"],
-      "schedule": ["* 0-3 * * *"]
-    },
-    {
+      "description": "Devcontainer updates are applied on Sundays",
       "matchManagers": ["devcontainer"],
       "addLabels": ["devcontainer"],
       "schedule": ["* * * * 0"]
     },
     {
+      "description": "Dockerfile updates for custom regex are applied early in the day",
+      "matchManagers": ["custom.regex"],
+      "addLabels": ["docker"],
+      "schedule": ["* 0-3 * * *"]
+    },
+    {
+      "description": "Dockerfile updates for general images are updated early in the day",
       "matchManagers": ["dockerfile"],
       "addLabels": ["docker"],
       "schedule": ["* 0-3 * * *"]
     },
     {
+      "description": "GitHub Actions are updated on Sundays",
+      "matchManagers": ["github-actions"],
+      "addLabels": ["github_actions"],
+      "schedule": ["* * * * 0"]
+    },
+    {
+      "description": "Tools pinned via mise are updated on Sundays",
+      "matchManagers": ["mise"],
+      "addLabels": ["mise"],
+      "schedule": ["* * * * 0"]
+    },
+    {
+      "description": "JavaScript dependencies are updated on Mondays once released for a day",
+      "matchManagers": ["npm"],
+      "addLabels": ["javascript"],
+      "minimumReleaseAge": "1 day",
+      "schedule": ["* * * * 1"]
+    },
+    {
+      "description": "Lock file maintenance runs early on Mondays without a release age",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "minimumReleaseAge": null,
+      "schedule": ["* 0-3 * * 1"]
+    },
+    {
+      "description": "Dockerfile updates for Arcane images are grouped together",
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["ghcr.io/getarcaneapp/*"],
       "groupName": "arcane"
     },
     {
+      "description": "Dockerfile updates for n8n images are grouped together",
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["n8nio/n8n", "n8nio/runners"],
       "groupName": "n8n"
     },
     {
+      "description": "Dockerfile updates for n8n sandbox service images are grouped together",
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["n8nio/n8n-sandbox-service-*"],
       "groupName": "n8n-sandbox-service"
     },
     {
+      "description": "Dockerfile updates for Plane images are grouped together",
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["makeplane/*"],
       "groupName": "plane"
     },
     {
+      "description": "Dockerfile updates for Traefik images are grouped together",
+      "matchManagers": ["dockerfile"],
       "matchPackageNames": [
         "traefik",
         "maxlerebourg/crowdsec-bouncer-traefik-plugin"
@@ -74,30 +114,11 @@
       "groupName": "traefik"
     },
     {
-      "matchManagers": ["github-actions"],
-      "addLabels": ["github_actions"],
-      "schedule": ["* * * * 0"]
-    },
-    {
-      "matchManagers": ["mise"],
-      "addLabels": ["mise"],
-      "schedule": ["* * * * 0"]
-    },
-    {
-      "matchManagers": ["npm"],
-      "addLabels": ["javascript"],
-      "minimumReleaseAge": "1 day",
-      "schedule": ["* * * * 1"]
-    },
-    {
+      "description": "Commitlint npm dependencies are grouped under 'commitlint'",
       "matchManagers": ["npm"],
       "matchPackageNames": ["@commitlint/*"],
       "minimumReleaseAge": "1 day",
       "groupName": "commitlint"
     }
-  ],
-  "prBodyTemplate": "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{changelogs}}}{{{controls}}}{{{footer}}}",
-  "prConcurrentLimit": 0,
-  "prHourlyLimit": 0,
-  "timezone": "Europe/Berlin"
+  ]
 }
