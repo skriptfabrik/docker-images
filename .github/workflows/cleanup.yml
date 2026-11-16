@@ -25,11 +25,6 @@ env:
   # At least this many tagged images are kept per package, regardless of age
   MIN_KEEP: 10
 
-defaults:
-  run:
-    # Explicit bash enables pipefail, so failing API calls in pipes fail the step
-    shell: bash
-
 jobs:
   packages:
     name: List Packages
