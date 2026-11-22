@@ -80,7 +80,7 @@ jobs:
     steps:
       # Runs first, so ghost and orphaned images are gone before the young images are counted.
       - name: Delete untagged images
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        uses: dataaxiom/ghcr-cleanup-action@ac45a8c04b1eb4b27974ca79a0a74f344c93664b # v1.3.0
         with:
           package: ${{ env.PACKAGE }}
           # Untagged manifests of a build that is being pushed right now are not referenced by a
@@ -111,7 +111,7 @@ jobs:
           echo "count=$keep" >> $GITHUB_OUTPUT
 
       - name: Delete old tagged images
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
+        uses: dataaxiom/ghcr-cleanup-action@ac45a8c04b1eb4b27974ca79a0a74f344c93664b # v1.3.0
         with:
           package: ${{ env.PACKAGE }}
           older-than: ${{ env.MAX_AGE_DAYS }} days
