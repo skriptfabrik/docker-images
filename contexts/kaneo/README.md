@@ -19,6 +19,14 @@ uses to derive the published image tags (see the
   contents (and unsets the `_FILE` variable afterwards) — this lets secrets (e.g.
   `POSTGRES_PASSWORD`, `AUTH_SECRET`) be supplied via mounted files or Docker/Swarm secrets
   instead of plain environment variables, without requiring any change in Kaneo itself.
+  The `_FILE` variables Kaneo already natively resolves — `AUTH_SECRET_FILE`,
+  `CREEM_API_KEY_FILE`, `CREEM_WEBHOOK_SECRET_FILE`, `CUSTOM_OAUTH_CLIENT_SECRET_FILE`,
+  `GITHUB_CLIENT_SECRET_FILE`, `GITHUB_OAUTH_CLIENT_SECRET_FILE`,
+  `GITHUB_PRIVATE_KEY_BASE64_FILE`, `GITHUB_PRIVATE_KEY_FILE`,
+  `GITHUB_WEBHOOK_SECRET_FILE`, `NOTIFICATION_SECRET_ENCRYPTION_KEY_FILE`,
+  `POSTGRES_PASSWORD_FILE`, `S3_ACCESS_KEY_ID_FILE`, `S3_SECRET_ACCESS_KEY_FILE`,
+  `SMTP_PASSWORD_FILE`, and `TURNSTILE_SECRET_KEY_FILE` — are excluded from `fileenv` via
+  `FILEENV_EXCLUDE` and left to Kaneo.
 
 ## Usage
 
