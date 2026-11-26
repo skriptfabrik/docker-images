@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM makeplane/plane-live:v1.5.0
+FROM makeplane/plane-live:v1.5.1
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
