@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/open-webui/open-webui:v0.13.4
+FROM ghcr.io/open-webui/open-webui:v0.13.5
 
 COPY --from=fileenv /usr/local/bin/fileenv /usr/local/bin/fileenv
 
