@@ -1,6 +1,6 @@
 FROM ghcr.io/skriptfabrik/fileenv:1.2.0 AS fileenv
 
-FROM ghcr.io/getarcaneapp/manager:v3.1.1
+FROM ghcr.io/getarcaneapp/manager:v3.2.0
 
 # Exclude "_FILE" suffixed environment variables from being processed by fileenv, as they are already handled by the Arcane manager.
 ENV FILEENV_EXCLUDE="ARCANE_AGENT_MTLS_CA_FILE,ARCANE_AGENT_MTLS_CERT_FILE,ARCANE_AGENT_MTLS_KEY_FILE,ARCANE_OIDC_ROLE_MAPPINGS_FILE,ARCANE_TLS_CERT_FILE,ARCANE_TLS_KEY_FILE,SSL_CERT_FILE"
